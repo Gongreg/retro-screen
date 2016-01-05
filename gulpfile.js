@@ -4,6 +4,7 @@ var gutil = require('gulp-util');
 var browserify = require('browserify');
 var babelify = require('babelify');
 var watchify = require('watchify');
+var sftp = require('gulp-sftp');
 
 function handleErrors(e) {
     console.log('ERROR!');
@@ -34,7 +35,13 @@ function buildScript(watch) {
     return stream
       .on('error', handleErrors)
       .pipe(source('bundle.js'))
-      .pipe(gulp.dest('./public/js'));
+      .pipe(gulp.dest('./public/js'))
+      /*.pipe(sftp({
+          host: 'leds.dev',
+          user: 'pi',
+          remotePath: '/home/pi/leds/public/js/',
+          pass: 'raspberry'
+      })); */
   }
 
   // listen for an update and run rebundle
