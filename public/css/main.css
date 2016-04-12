@@ -1,0 +1,34 @@
+.topBar {
+    border-radius: 0;
+}
+
+.topBar .container {
+    margin-left: inherit;
+    width: 100%;
+}
+
+.topBar .navbar-brand:hover {
+    color: #9d9d9d;
+}
+
+.screen-container {
+    display: flex;
+    justify-content: center;
+}
+
+.screen {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    background-color: grey;
+}
+
+.ledRow {
+    display: flex;
+}
+
+.led {
+    width: 32px;
+    height: 32px;
+    margin: 2px;
+}

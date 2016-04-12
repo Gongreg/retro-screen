@@ -1,0 +1,12 @@
+menu:
+	settings
+	draw
+	animations
+	image
+	games
+		tetris
+		snake
+		nanogram
+	equalizer
+	scriptExecutor
+
