@@ -82,7 +82,34 @@ io.on('connection', function(socket){
 
         }
 
-        io.emit('brightness', screenData);
+        io.emit('afterBrightness', brightness);
+    });
+
+    socket.on('draw', function(data){
+
+        const index = data.index;
+
+        if (index < 0 || index > NUM_LEDS) {
+            return;
+        }
+
+        const color = data.color;
+
+        if (color < 0 || color > 0xffffff) {
+            return;
+        }
+
+        let pixelData = screenData.pixelData;
+        pixelData[index] = data.color;
+
+        screenData = Object.assign(
+            screenData,
+            { pixelData: pixelData }
+        );
+
+        ws281x.render(screenData);
+
+        io.emit('afterDraw', data);
     });
 
 
@@ -94,9 +121,7 @@ io.on('connection', function(socket){
 
         ws281x.render(screenData);
 
-        io.emit('reset', {
-            screenData,
-        });
+        io.emit('afterReset', screenData);
     });
 
 });

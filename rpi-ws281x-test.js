@@ -4,7 +4,7 @@ const rpiWs281xTest = {
 
     init() {},
     setBrightness() {},
-    draw() {},
+    render() {},
     reset() {},
 };
 

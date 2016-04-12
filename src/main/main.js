@@ -1,42 +1,126 @@
 import React from 'react';
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap/lib';
-import NavItem from 'nav-item/nav-item';
-import MenuItem from 'menu-item/menu-item';
-import { Link } from 'react-router';
+import R from 'ramda';
+
+import Menu from './menu';
+
+function parseScreenData(screenData) {
+
+    return {
+        screenData: {
+            ...screenData,
+            pixelData: R.values(screenData.pixelData),
+        },
+    };
+}
 
 export default React.createClass({
 
     displayName: 'Main',
 
+    getInitialState() {
+        return {
+            screenData: {
+                pixelData: [],
+                resolution: {
+                    x: 0,
+                    y: 0,
+                },
+                brightness: 0,
+            },
+            loading: true,
+        };
+    },
+
+    componentWillMount() {
+        this.socket = io();
+        this.socket.on('init', this.onInit);
+        this.socket.on('afterDraw', this.afterDraw);
+        this.socket.on('afterBrightness', this.afterBrightness);
+        this.socket.on('afterReset', this.afterReset);
+    },
+
+    onInit(screenData) {
+        this.setState({
+            loading: false,
+            ...parseScreenData(screenData),
+        });
+
+    },
+
+
+    afterBrightness(brightness) {
+        let oldBrightness = this.state.screenData.brightness;
+
+        if (oldBrightness === brightness) {
+            return;
+        }
+
+        const screenData = {
+            ...this.state.screenData,
+            brightness,
+        };
+
+        this.setState({
+            screenData,
+        });
+    },
+
+    afterDraw({index, color}) {
+        let pixelData = this.state.screenData.pixelData;
+
+        if (pixelData[index] === color) {
+            return;
+        }
+
+        pixelData[index] = color;
+
+        const screenData = {
+            ...this.state.screenData,
+            pixelData,
+        };
+
+        this.setState({
+            screenData,
+        });
+    },
+
+    afterReset(screenData) {
+        this.setState(parseScreenData(screenData));
+    },
+
+    onDraw({index, color}) {
+
+        let pixelData = this.state.screenData.pixelData;
+        pixelData[index] = color;
+
+        const screenData = {
+            ...this.state.screenData,
+            pixelData,
+        };
+
+        this.socket.emit('draw', {index, color});
+
+        this.setState({
+            screenData
+        });
+    },
+
     render() {
+
+        const childrenWithProps = React.Children.map(
+            this.props.children,
+            (child) => React.cloneElement(child, {
+                ...this.state,
+                onDraw: this.onDraw,
+            })
+        );
+
         return (
             <div>
-                <Navbar className="topBar" inverse>
-                    <Navbar.Header>
-                        <Navbar.Brand>
-                            <Link to="/">RetroScreen</Link>
-                        </Navbar.Brand>
-                        <Navbar.Toggle />
-                    </Navbar.Header>
-                    <Navbar.Collapse>
-                        <Nav>
-                            <NavItem href="draw"><Link to="draw">Draw</Link></NavItem>
-                            <NavItem><Link to="images">Images</Link></NavItem>
-                            <NavDropdown title="Games" id="dropdown-games">
-                                <MenuItem><Link to="nonogram">Nonogram</Link></MenuItem>
-                                <MenuItem><Link to="snake">Snake</Link></MenuItem>
-                                <MenuItem><Link to="tetris">Tetris</Link></MenuItem>
-                                <MenuItem><Link to="ping-pong">Ping pong</Link></MenuItem>
-                            </NavDropdown>
-                            <NavItem><Link to="equalizer">Equalizer</Link></NavItem>
-                            <NavItem><Link to="scripts">Script runner</Link></NavItem>
-                        </Nav>
-                        <Nav pullRight>
-                            <NavItem><Link to="screen">Test screen</Link></NavItem>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Navbar>
-                { this.props.children }
+                <Menu/>
+                <div className="container">
+                    { childrenWithProps }
+                </div>
             </div>
         );
     },

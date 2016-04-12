@@ -8,13 +8,13 @@
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "openpixelcontrol-stream": "^0.1.2",
-    "react-bootstrap": "^0.28.5",
-    "react-router": "^2.1.1",
-    "rpi-ws281x-native": "^0.8.1",
-    "socket.io": "^1.4.5",
     "ramda": "^0.19.1",
     "react": "^0.14.5",
-    "react-dom": "^0.14.5"
+    "react-bootstrap": "^0.28.5",
+    "react-dom": "^0.14.5",
+    "react-router": "^2.1.1",
+    "rpi-ws281x-native": "^0.8.1",
+    "socket.io": "^1.4.5"
   },
   "devDependencies": {
     "babel-core": "^6.3.26",
@@ -31,7 +31,8 @@
     "server": "node server.js",
     "server-watch": "sudo nodemon server.js",
     "build": "./node_modules/.bin/webpack",
-    "watch": "./node_modules/.bin/webpack --watch"
+    "watch": "./node_modules/.bin/webpack --watch",
+    "build_prod": " NODE_ENV=production ./node_modules/.bin/webpack"
   },
   "keywords": [
     "led",

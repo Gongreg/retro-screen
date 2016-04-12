@@ -1,3 +1,7 @@
+var webpack = require('webpack');
+
+var PROD = (process.env.NODE_ENV === 'production');
+
 module.exports = {
     entry: {
         main: "./src/app/app.js",
@@ -19,6 +23,14 @@ module.exports = {
         },
         ]
     },
+    plugins: PROD ? [
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        })
+    ] : [],
+
     resolve: {
         modulesDirectories: ['src', 'node_modules'],
         extensions: ['', '.js', '.json'],
