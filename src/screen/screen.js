@@ -4,6 +4,10 @@ import R from 'ramda';
 import Led from './led';
 import parseColor from 'parse-color/parse-color';
 
+function rowReverse(rowIndex) {
+    return rowIndex % 2 == 0;
+}
+
 export default React.createClass({
     displayName: 'Screen',
 
@@ -18,6 +22,21 @@ export default React.createClass({
 
         const { screenData: { pixelData, resolution: { x } }, loading, ...props } = this.props;
 
+        if (loading) {
+            return (
+                <div className="container">
+                    <div className="screen-container">
+                        <div>Loading</div>
+                    </div>
+                </div>
+            );
+        }
+
+        const rows = R.splitEvery(x, pixelData);
+
+
+        const sortedRows = rows.map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : ledRow);
+
         return (
             <div className="container">
                 <div className="screen-container">
@@ -27,17 +46,23 @@ export default React.createClass({
                     { !loading && pixelData.length !== 0 &&
 
                     <div className="screen">
-                        { R.splitEvery(x, pixelData).map((ledRow, rowIndex) => {
+                        {sortedRows.map((ledRow, rowIndex) => {
                             return (
                                 <div key={ 'x-' + rowIndex } className="ledRow">
-                                    {ledRow.map((led, ledIndex) =>
-                                        <Led
+                                    {ledRow.map((led, ledIndex) => {
+
+                                        const indexInRow = rowReverse(rowIndex) ? (x - 1) - ledIndex : ledIndex;
+
+                                        return (
+                                            <Led
                                             {...props}
                                             key={ 'x-' + rowIndex + 'y-' + ledIndex }
-                                            index={ x * rowIndex + ledIndex }
+                                            index={ x * rowIndex + indexInRow }
                                             color={ parseColor(led) }
-                                        />
-                                    )}
+                                            />
+                                        );
+
+                                    })}
                                 </div>
                             );
                         }) }

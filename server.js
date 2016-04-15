@@ -31,29 +31,13 @@ let screenData = {
         y: 16,
     },
     pixelData: new Uint32Array(NUM_LEDS),
-    brightness: 100,
+    brightness: DEFAULT_BRIGHTNESS,
 };
 
-const ws281x = require('./rpi-wrapper');
+const ws281x = require('rpi-ws281x-native');
 
 ws281x.init(NUM_LEDS);
-ws281x.setBrightness(DEFAULT_BRIGHTNESS);
-
-app.route('/draw')
-    .get(function (req, res) {
-        res.json({leds: pixelData});
-    })
-    .post(function (req, res) {
-        const index = parseInt(req.body.index);
-        const color = parseInt(req.body.color);
-
-        pixelData[index] = color;
-
-        ws281x.render(pixelData);
-
-        res.send('ok');
-    });
-
+ws281x.setBrightness(screenData.brightness);
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -77,7 +61,7 @@ io.on('connection', function(socket){
                 { brightness: newBrightness }
             );
 
-            ws281x.setBrightness(newBrightness);
+            ws281x.setBrightness(screenData.brightness);
             ws281x.render(screenData.pixelData);
 
         }
@@ -107,7 +91,7 @@ io.on('connection', function(socket){
             { pixelData: pixelData }
         );
 
-        ws281x.render(screenData);
+        ws281x.render(screenData.pixelData);
 
         io.emit('afterDraw', data);
     });
@@ -119,7 +103,7 @@ io.on('connection', function(socket){
             { pixelData: new Uint32Array(NUM_LEDS) }
         );
 
-        ws281x.render(screenData);
+        ws281x.render(screenData.pixelData);
 
         io.emit('afterReset', screenData);
     });

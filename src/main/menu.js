@@ -33,6 +33,7 @@ export default React.createClass({
                         </Nav>
                         <Nav pullRight>
                             <NavItem><Link to="screen">Test screen</Link></NavItem>
+                            <NavItem><a onClick={ this.props.onReset }>Reset</a></NavItem>
                         </Nav>
                     </Navbar.Collapse>
                 </Navbar>

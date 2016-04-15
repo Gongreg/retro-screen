@@ -88,6 +88,20 @@ export default React.createClass({
         this.setState(parseScreenData(screenData));
     },
 
+    onReset() {
+
+        const { screenData } = this.state;
+
+        this.setState({
+            screenData: {
+                ...screenData,
+                pixelData: R.map(R.always(0), screenData.pixelData)
+            },
+        });
+
+        this.socket.emit('reset');
+    },
+
     onDraw({index, color}) {
 
         let pixelData = this.state.screenData.pixelData;
@@ -117,7 +131,7 @@ export default React.createClass({
 
         return (
             <div>
-                <Menu/>
+                <Menu onReset={ this.onReset }/>
                 <div className="container">
                     { childrenWithProps }
                 </div>

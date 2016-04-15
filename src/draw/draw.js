@@ -16,7 +16,7 @@ export default React.createClass({
 
     getInitialState() {
         return {
-            color: 0xffffff,
+            color: 'ffffff',
         };
     },
 
@@ -27,7 +27,7 @@ export default React.createClass({
             return;
         }
 
-        const color = this.state.color;
+        const color = parseInt(this.state.color, 16);
 
         const { screenData: { pixelData } } = this.props;
 
@@ -41,7 +41,7 @@ export default React.createClass({
 
     onMouseDownLed(index) {
 
-        const color = this.state.color;
+        const color = parseInt(this.state.color, 16);
 
         const { screenData: { pixelData } } = this.props;
 
@@ -59,11 +59,19 @@ export default React.createClass({
         });
     },
 
+    onChange(event) {
+        this.setState({
+            color: event.target.value,
+        });
+    },
+
     render() {
         return (
             <div>
                 <h1>Draw</h1>
             {/*<ColorPicker value={this.state.color} onChange={this.onDragColor} onDrag={this.onDragColor} saturationWidth={150} saturationHeight={150} hueWidth={20} />*/}
+
+                <input onChange={this.onChange} value={this.state.color} />
 
                <Screen {...this.props} onMouseDown={this.onMouseDownLed} onMouseOver={this.onMouseOverLed} />
 

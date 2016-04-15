@@ -29,10 +29,11 @@
   },
   "scripts": {
     "server": "node server.js",
+    "server-prod": "sudo node server.js",
     "server-watch": "sudo nodemon server.js",
     "build": "./node_modules/.bin/webpack",
     "watch": "./node_modules/.bin/webpack --watch",
-    "build_prod": " NODE_ENV=production ./node_modules/.bin/webpack"
+    "build-prod": " NODE_ENV=production ./node_modules/.bin/webpack"
   },
   "keywords": [
     "led",
