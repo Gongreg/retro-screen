@@ -1,9 +1,17 @@
 import React, { PropTypes } from 'react';
 import R from 'ramda';
-
-//import ColorPicker from 'react-color-picker';
+import { CompactPicker, PhotoshopPicker } from 'react-color';
 
 import Screen from 'screen/screen';
+
+const colors = [
+    '#4D4D4D', '#999999', '#FFFFFF', '#F44E3B', '#FE9200', '#FCDC00',
+    '#DBDF00', '#A4DD00', '#68CCCA', '#73D8FF', '#AEA1FF', '#FDA1FF',
+    '#333333', '#808080', '#cccccc', '#D33115', '#E27300', '#FCC400',
+    '#B0BC00', '#68BC00', '#16A5A5', '#009CE0', '#7B64FF', '#FA28FF',
+    '#000000', '#666666', '#B3B3B3', '#9F0500', '#C45100', '#FB9E00',
+    '#808900', '#194D33', '#0C797D', '#0062B1', '#653294', '#AB149E',
+];
 
 export default React.createClass({
     displayName: 'Draw',
@@ -17,6 +25,7 @@ export default React.createClass({
     getInitialState() {
         return {
             color: 'ffffff',
+            display: false,
         };
     },
 
@@ -52,16 +61,16 @@ export default React.createClass({
         this.props.onDraw({index, color});
     },
 
-    onDragColor(color) {
+    onChangeColor( color ) {
 
         this.setState({
-            color: color.substring(1),
+            color: color.hex,
         });
     },
 
-    onChange(event) {
+    onClickMoreColor() {
         this.setState({
-            color: event.target.value,
+            display: !this.state.display,
         });
     },
 
@@ -69,12 +78,32 @@ export default React.createClass({
         return (
             <div>
                 <h1>Draw</h1>
-            {/*<ColorPicker value={this.state.color} onChange={this.onDragColor} onDrag={this.onDragColor} saturationWidth={150} saturationHeight={150} hueWidth={20} />*/}
 
-                <input onChange={this.onChange} value={this.state.color} />
+                <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    { !this.state.display &&
+                    <CompactPicker
+                        color={this.state.color}
+                        onChangeComplete={this.onChangeColor}
+                        colors={colors}
+                    />
+                    }
+                    { this.state.display &&
+                        <PhotoshopPicker
+                            color={this.state.color}
+                            onChangeComplete={this.onChangeColor}
+                        />
+                    }
 
-               <Screen {...this.props} onMouseDown={this.onMouseDownLed} onMouseOver={this.onMouseOverLed} />
+                    <button style={{ marginTop: '10px' }} onClick={ this.onClickMoreColor }>
+                        { (this.state.display && 'Less') || 'More' }
+                    </button>
+                </div>
 
+                <div className="inner-container">
+
+                    <Screen {...this.props} onMouseDown={this.onMouseDownLed} onMouseOver={this.onMouseOverLed} />
+
+                </div>
             </div>
         );
     },

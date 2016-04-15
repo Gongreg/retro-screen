@@ -34,41 +34,38 @@ export default React.createClass({
 
         const rows = R.splitEvery(x, pixelData);
 
-
         const sortedRows = rows.map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : ledRow);
 
         return (
-            <div className="container">
-                <div className="screen-container">
-                    { loading &&
-                    <div>Loading</div>
-                    }
-                    { !loading && pixelData.length !== 0 &&
+            <div className="screen-container">
+                { loading &&
+                <div>Loading</div>
+                }
+                { !loading && pixelData.length !== 0 &&
 
-                    <div className="screen">
-                        {sortedRows.map((ledRow, rowIndex) => {
-                            return (
-                                <div key={ 'x-' + rowIndex } className="ledRow">
-                                    {ledRow.map((led, ledIndex) => {
+                <div className="screen">
+                    {sortedRows.map((ledRow, rowIndex) => {
+                        return (
+                            <div key={ 'x-' + rowIndex } className="ledRow">
+                                {ledRow.map((led, ledIndex) => {
 
-                                        const indexInRow = rowReverse(rowIndex) ? (x - 1) - ledIndex : ledIndex;
+                                    const indexInRow = rowReverse(rowIndex) ? (x - 1) - ledIndex : ledIndex;
 
-                                        return (
-                                            <Led
-                                            {...props}
-                                            key={ 'x-' + rowIndex + 'y-' + ledIndex }
-                                            index={ x * rowIndex + indexInRow }
-                                            color={ parseColor(led) }
-                                            />
-                                        );
+                                    return (
+                                        <Led
+                                        {...props}
+                                        key={ 'x-' + rowIndex + 'y-' + ledIndex }
+                                        index={ x * rowIndex + indexInRow }
+                                        color={ parseColor(led) }
+                                        />
+                                    );
 
-                                    })}
-                                </div>
-                            );
-                        }) }
-                    </div>
-                    }
+                                })}
+                            </div>
+                        );
+                    }) }
                 </div>
+                }
             </div>
         );
     },

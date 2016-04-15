@@ -132,9 +132,10 @@ export default React.createClass({
         return (
             <div>
                 <Menu onReset={ this.onReset }/>
-                <div className="container">
-                    { childrenWithProps }
-                </div>
+                    <div className="flex-container">
+                        { childrenWithProps }
+                    </div>
+
             </div>
         );
     },

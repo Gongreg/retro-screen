@@ -37,7 +37,9 @@ let screenData = {
 const ws281x = require('rpi-ws281x-native');
 
 ws281x.init(NUM_LEDS);
+ws281x.render(screenData.pixelData);
 ws281x.setBrightness(screenData.brightness);
+ws281x.render(screenData.pixelData);
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -113,6 +115,7 @@ io.on('connection', function(socket){
 
 process.on('SIGINT', function () {
     ws281x.reset();
+    io.emit('reset', screenData);
     process.nextTick(function () { process.exit(0); });
 });
 
