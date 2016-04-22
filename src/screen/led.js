@@ -6,16 +6,21 @@ export default React.createClass({
     propTypes: {
         onMouseOver: PropTypes.func,
         onMouseDown: PropTypes.func,
-        index: PropTypes.number,
+        x: PropTypes.number,
+        y: PropTypes.number,
         color: PropTypes.string,
     },
 
     onMouseDown(e) {
-        this.props.onMouseDown && this.props.onMouseDown(this.props.index, e);
+        const { x, y } = this.props;
+
+        this.props.onMouseDown && this.props.onMouseDown({x, y}, e);
     },
 
     onMouseOver(e) {
-        this.props.onMouseOver && this.props.onMouseOver(this.props.index, e);
+        const { x, y } = this.props;
+
+        this.props.onMouseOver && this.props.onMouseOver({x, y}, e);
     },
 
     render() {

@@ -1,5 +1,7 @@
 "use strict";
 
+const R = require('ramda');
+
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
@@ -34,6 +36,43 @@ let screenData = {
     brightness: DEFAULT_BRIGHTNESS,
 };
 
+function rowReverse(rowIndex) {
+    return rowIndex % 2 == 0;
+}
+
+function serialize(screenData) {
+
+    const x = screenData.resolution.x;
+
+    const rows = R.splitEvery(x, screenData.pixelData);
+
+    const sortedRows = rows.map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : R.values(ledRow));
+
+    return Object.assign(
+        {},
+        screenData,
+        {
+            pixelData: sortedRows
+        }
+    );
+
+}
+
+function parse(screenData) {
+
+    const sortedRows = screenData.pixelData.map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : ledRow);
+
+    const rows = R.flatten(sortedRows);
+
+    return Object.assign(
+        {},
+        screenData,
+        {
+            pixelData: rows,
+        }
+    );
+}
+
 const ws281x = require('rpi-ws281x-native');
 
 ws281x.init(NUM_LEDS);
@@ -51,7 +90,7 @@ io.on('connection', function(socket){
         console.log('user disconnected');
     });
 
-    socket.emit('init', screenData);
+    socket.emit('init', serialize(screenData));
 
     socket.on('brightness', function(brightness) {
         const newBrightness = parseInt(brightness);
@@ -59,6 +98,7 @@ io.on('connection', function(socket){
         if (newBrightness >= 0 && newBrightness <= 100) {
 
             screenData = Object.assign(
+                {},
                 screenData,
                 { brightness: newBrightness }
             );
@@ -73,9 +113,9 @@ io.on('connection', function(socket){
 
     socket.on('draw', function(data){
 
-        const index = data.index;
+        const {x, y} = data.coordinates;
 
-        if (index < 0 || index > NUM_LEDS) {
+        if (x < 0 || x >= screenData.resolution.x || y < 0 || y > screenData.resolution.y ) {
             return;
         }
 
@@ -86,9 +126,10 @@ io.on('connection', function(socket){
         }
 
         let pixelData = screenData.pixelData;
-        pixelData[index] = data.color;
+        pixelData[y][x] = data.color;
 
         screenData = Object.assign(
+            {},
             screenData,
             { pixelData: pixelData }
         );
@@ -98,16 +139,28 @@ io.on('connection', function(socket){
         io.emit('afterDraw', data);
     });
 
-
-    socket.on('reset', function(){
+    socket.on('image', function(data) {
         screenData = Object.assign(
+            {},
+            parse(data)
+        );
+
+        ws281x.render(screenData.pixelData);
+
+        io.emit('afterImage', serialize(screenData));
+    });
+
+
+    socket.on('reset', function() {
+        screenData = Object.assign(
+            {},
             screenData,
             { pixelData: new Uint32Array(NUM_LEDS) }
         );
 
         ws281x.render(screenData.pixelData);
 
-        io.emit('afterReset', screenData);
+        io.emit('afterReset', serialize(screenData));
     });
 
 });

@@ -3,16 +3,6 @@ import R from 'ramda';
 
 import Menu from './menu';
 
-function parseScreenData(screenData) {
-
-    return {
-        screenData: {
-            ...screenData,
-            pixelData: R.values(screenData.pixelData),
-        },
-    };
-}
-
 export default React.createClass({
 
     displayName: 'Main',
@@ -37,16 +27,22 @@ export default React.createClass({
         this.socket.on('afterDraw', this.afterDraw);
         this.socket.on('afterBrightness', this.afterBrightness);
         this.socket.on('afterReset', this.afterReset);
+        this.socket.on('afterImage', this.afterImage);
     },
 
     onInit(screenData) {
         this.setState({
             loading: false,
-            ...parseScreenData(screenData),
+            screenData,
         });
 
     },
 
+    afterImage(screenData) {
+        this.setState({
+            screenData,
+        });
+    },
 
     afterBrightness(brightness) {
         let oldBrightness = this.state.screenData.brightness;
@@ -85,34 +81,55 @@ export default React.createClass({
     },
 
     afterReset(screenData) {
-        this.setState(parseScreenData(screenData));
+        this.setState(screenData);
     },
 
     onReset() {
 
         const { screenData } = this.state;
 
+        const setAllElementsToZero = R.pipe(
+            R.flatten,
+            R.map(R.always(0)),
+            R.splitEvery(this.state.screenData.resolution.x)
+        );
+
         this.setState({
             screenData: {
                 ...screenData,
-                pixelData: R.map(R.always(0), screenData.pixelData)
+                pixelData: setAllElementsToZero(screenData.pixelData)
             },
         });
 
         this.socket.emit('reset');
     },
 
-    onDraw({index, color}) {
+    onDraw({coordinates, color}) {
 
+        const {x, y} = coordinates;
         let pixelData = this.state.screenData.pixelData;
-        pixelData[index] = color;
+        pixelData[y][x] = color;
 
         const screenData = {
             ...this.state.screenData,
             pixelData,
         };
 
-        this.socket.emit('draw', {index, color});
+        this.socket.emit('draw', {coordinates: {x, y}, color});
+
+        this.setState({
+            screenData
+        });
+    },
+
+    onUploadImage(data) {
+
+        const screenData = {
+            ...this.state.screenData,
+            pixelData: data,
+        };
+
+        this.socket.emit('image', screenData);
 
         this.setState({
             screenData
@@ -126,6 +143,7 @@ export default React.createClass({
             (child) => React.cloneElement(child, {
                 ...this.state,
                 onDraw: this.onDraw,
+                onUploadImage: this.onUploadImage,
             })
         );
 

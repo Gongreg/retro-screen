@@ -4,10 +4,6 @@ import R from 'ramda';
 import Led from './led';
 import parseColor from 'parse-color/parse-color';
 
-function rowReverse(rowIndex) {
-    return rowIndex % 2 == 0;
-}
-
 export default React.createClass({
     displayName: 'Screen',
 
@@ -20,7 +16,7 @@ export default React.createClass({
 
     render() {
 
-        const { screenData: { pixelData, resolution: { x } }, loading, ...props } = this.props;
+        const { screenData: { pixelData }, loading, ...props } = this.props;
 
         if (loading) {
             return (
@@ -31,11 +27,6 @@ export default React.createClass({
                 </div>
             );
         }
-
-        const rows = R.splitEvery(x, pixelData);
-
-        const sortedRows = rows.map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : ledRow);
-
         return (
             <div className="screen-container">
                 { loading &&
@@ -44,18 +35,17 @@ export default React.createClass({
                 { !loading && pixelData.length !== 0 &&
 
                 <div className="screen">
-                    {sortedRows.map((ledRow, rowIndex) => {
+                    {pixelData.map((ledRow, rowIndex) => {
                         return (
                             <div key={ 'x-' + rowIndex } className="ledRow">
                                 {ledRow.map((led, ledIndex) => {
-
-                                    const indexInRow = rowReverse(rowIndex) ? (x - 1) - ledIndex : ledIndex;
 
                                     return (
                                         <Led
                                         {...props}
                                         key={ 'x-' + rowIndex + 'y-' + ledIndex }
-                                        index={ x * rowIndex + indexInRow }
+                                        y={ rowIndex }
+                                        x={ ledIndex }
                                         color={ parseColor(led) }
                                         />
                                     );

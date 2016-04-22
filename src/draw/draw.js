@@ -29,7 +29,7 @@ export default React.createClass({
         };
     },
 
-    onMouseOverLed(index, e) {
+    onMouseOverLed({y, x}, e) {
 
         e.preventDefault();
         if (e.nativeEvent.buttons !== 1) {
@@ -40,25 +40,25 @@ export default React.createClass({
 
         const { screenData: { pixelData } } = this.props;
 
-        if (pixelData[index] === color) {
+        if (pixelData[y][x] === color) {
             return;
         }
 
-        this.props.onDraw({index, color});
+        this.props.onDraw({coordinates: { x, y }, color});
 
     },
 
-    onMouseDownLed(index) {
+    onMouseDownLed({y, x}) {
 
         const color = parseInt(this.state.color, 16);
 
         const { screenData: { pixelData } } = this.props;
 
-        if (pixelData[index] === color) {
+        if (pixelData[y][x] === color) {
             return;
         }
 
-        this.props.onDraw({index, color});
+        this.props.onDraw({coordinates: { x, y }, color});
     },
 
     onChangeColor( color ) {
