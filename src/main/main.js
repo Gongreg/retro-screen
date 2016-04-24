@@ -61,14 +61,17 @@ export default React.createClass({
         });
     },
 
-    afterDraw({index, color}) {
+    afterDraw({coordinates, color}) {
+
+        const {x, y} = coordinates;
+
         let pixelData = this.state.screenData.pixelData;
 
-        if (pixelData[index] === color) {
+        if (pixelData[y][x] === color) {
             return;
         }
 
-        pixelData[index] = color;
+        pixelData[y][x] = color;
 
         const screenData = {
             ...this.state.screenData,

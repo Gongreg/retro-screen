@@ -73,6 +73,15 @@ function parse(screenData) {
     );
 }
 
+function calculateIndex(screenData, coordinates) {
+
+    const resolution = screenData.resolution;
+
+    const rowIndex = rowReverse(coordinates.y) ? resolution.x - 1 - coordinates.x : coordinates.x;
+
+    return coordinates.y * resolution.x + rowIndex;
+}
+
 const ws281x = require('rpi-ws281x-native');
 
 ws281x.init(NUM_LEDS);
@@ -113,11 +122,14 @@ io.on('connection', function(socket){
 
     socket.on('draw', function(data){
 
-        const {x, y} = data.coordinates;
+        const x = data.coordinates.x;
+        const y = data.coordinates.y;
 
-        if (x < 0 || x >= screenData.resolution.x || y < 0 || y > screenData.resolution.y ) {
+        if (x < 0 || x >= screenData.resolution.x || y < 0 || y >= screenData.resolution.y ) {
             return;
         }
+
+        const index = calculateIndex(screenData, data.coordinates);
 
         const color = data.color;
 
@@ -126,7 +138,7 @@ io.on('connection', function(socket){
         }
 
         let pixelData = screenData.pixelData;
-        pixelData[y][x] = data.color;
+        pixelData[index] = data.color;
 
         screenData = Object.assign(
             {},

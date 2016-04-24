@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import R from 'ramda';
 import { CompactPicker, PhotoshopPicker } from 'react-color';
+import moment from 'moment';
 
 import Screen from 'screen/screen';
 
@@ -74,6 +75,51 @@ export default React.createClass({
         });
     },
 
+    onClickSave() {
+
+        const {x, y} = this.props.screenData.resolution;
+
+        let canvas = document.createElement('canvas');
+        canvas.width = x;
+        canvas.height = y;
+
+        let context = canvas.getContext('2d');
+        let canvasData = context.getImageData(0, 0, x, y);
+
+        const setColorsForPixels = R.pipe(
+            R.splitEvery(4),
+            (pixels) => {
+                return pixels.map((pixel, index) => {
+
+                    const screenX = index % x;
+                    const screenY = (index - screenX) / x;
+
+                    const screenPixel = this.props.screenData.pixelData[screenY][screenX];
+
+                    return [
+                        (screenPixel >> 0x10) & 0xff, //r,
+                        (screenPixel >> 0x8) & 0xff,//g
+                        screenPixel & 0xff, //b
+                        255,
+                    ];
+                });
+            },
+            R.flatten
+        );
+
+        canvasData.data.set(setColorsForPixels(canvasData.data));
+
+        context.putImageData(canvasData, 0, 0);
+
+        const date = moment().format('YYYY-MM-DD-HH-mm-ss');
+
+        const link = document.createElement('a');
+        link.setAttribute('download', 'drawing-' + date + '.png');
+        link.setAttribute('href', canvas.toDataURL().replace("image/png", "image/octet-stream"));
+        link.click();
+    },
+
+
     render() {
         return (
             <div>
@@ -94,9 +140,17 @@ export default React.createClass({
                         />
                     }
 
-                    <button style={{ marginTop: '10px' }} onClick={ this.onClickMoreColor }>
-                        { (this.state.display && 'Less') || 'More' }
-                    </button>
+                    <div>
+                        <button style={{ marginTop: '10px', marginRight: '30px' }} onClick={ this.onClickMoreColor }>
+                            { (this.state.display && 'Less') || 'More' }
+                        </button>
+                        <button style={{ marginTop: '10px', marginRight: '30px' }} onClick={ this.onClickSave }>
+                            Save
+                        </button>
+                        <button style={{ marginTop: '10px' }} onClick={ this.onClickMoreColor }>
+                            Upload
+                        </button>
+                    </div>
                 </div>
 
                 <div className="inner-container">
