@@ -16,6 +16,7 @@ export default React.createClass({
                     y: 0,
                 },
                 brightness: 0,
+                maxBrightness: 0,
             },
             loading: true,
         };
@@ -135,7 +136,20 @@ export default React.createClass({
         this.socket.emit('image', screenData);
 
         this.setState({
-            screenData
+            screenData,
+        });
+    },
+
+    onChangeBrightness(brightness) {
+        const screenData = {
+            ...this.state.screenData,
+            brightness,
+        };
+
+        this.socket.emit('brightness', brightness);
+
+        this.setState({
+            screenData,
         });
     },
 
@@ -152,7 +166,7 @@ export default React.createClass({
 
         return (
             <div>
-                <Menu onReset={ this.onReset }/>
+                <Menu { ...this.state } onReset={ this.onReset } onChangeBrightness={ this.onChangeBrightness }/>
                     <div className="flex-container">
                         { childrenWithProps }
                     </div>

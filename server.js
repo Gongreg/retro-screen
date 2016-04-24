@@ -34,6 +34,7 @@ let screenData = {
     },
     pixelData: new Uint32Array(NUM_LEDS),
     brightness: DEFAULT_BRIGHTNESS,
+    maxBrightness: DEFAULT_BRIGHTNESS,
 };
 
 function rowReverse(rowIndex) {
