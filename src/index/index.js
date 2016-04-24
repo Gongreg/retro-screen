@@ -12,15 +12,7 @@ export default React.createClass({
         return (
             <div className="container">
                 <h2>Retroscreen</h2>
-                <p>A website used to control raspberry to control a 16x16 led screen which can do many great things!</p>
-                Available things:
-                <ul>
-                    <li>
-                        Test screen
-                    </li>
-                </ul>
-
-                <div className="center-block" style={{ width: '300px', height: '300px' }}>
+                <div className="center-block" style={{ width: '500px', height: '500px' }}>
                     <img className="img-responsive" src="images/logo.svg" />
                 </div>
             </div>

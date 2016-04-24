@@ -32,7 +32,7 @@ export default React.createClass({
             canvas.height = y;
 
             let context = canvas.getContext('2d');
-            context.drawImage(image, 0, 0);
+            context.drawImage(image, 0, 0, x, y);
             const imageData = context.getImageData(0, 0, x, y);
 
             const fixedData = R.splitEvery(4, imageData.data).map((data) => {
@@ -49,11 +49,6 @@ export default React.createClass({
         };
 
         image.src = file.preview;
-
-
-        this.setState({
-            file,
-        });
 
     },
 
@@ -82,7 +77,6 @@ export default React.createClass({
                 >
                     <div>Try dropping some files here, or click to select files to upload.</div>
                 </Dropzone>
-                <img src={ this.state.file.preview} width={this.props.screenData.resolution.x} />
             </div>
         );
     },
