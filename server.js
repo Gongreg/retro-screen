@@ -11,10 +11,10 @@ const app = express();
 
 const getPixels = require('get-pixels');
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Cache-Control");
-  next();
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Cache-Control");
+    next();
 });
 
 app.use(bodyParser.json());
@@ -106,13 +106,25 @@ function getPixelDataFromImage(data) {
 
     const ledsArray = R.splitEvery(screenData.resolution.x, fixedData);
 
-    return parse({pixelData: ledsArray});
+    return parse({ pixelData: ledsArray });
 
 }
 
+function afterImage(pixelData) {
+    setScreenData(Object.assign(
+        screenData,
+        pixelData
+    ));
+
+    ws281x.render(screenData.pixelData);
+
+    io.emit('afterImage', serialize(screenData));
+}
+
+
 const ws281x = require('rpi-ws281x-native');
 
-const gm = require('gm').subClass({imageMagick: true});
+const gm = require('gm').subClass({ imageMagick: true });
 
 ws281x.init(NUM_LEDS);
 ws281x.render(screenData.pixelData);
@@ -124,16 +136,19 @@ const io = require('socket.io')(server);
 
 let currentCycle = null;
 
-io.on('connection', function(socket){
+io.on('connection', function (socket) {
     console.log('a user connected');
 
-    socket.on('disconnect', function(){
+    socket.on('disconnect', function () {
         console.log('user disconnected');
     });
 
     socket.emit('init', serialize(screenData));
 
-    socket.on('brightness', function(brightness) {
+    //get image list and emit it
+
+
+    socket.on('brightness', function (brightness) {
         const newBrightness = parseInt(brightness);
 
         if (newBrightness >= 0 && newBrightness <= 100) {
@@ -152,12 +167,12 @@ io.on('connection', function(socket){
         io.emit('afterBrightness', brightness);
     });
 
-    socket.on('draw', function(data){
+    socket.on('draw', function (data) {
 
         const x = data.coordinates.x;
         const y = data.coordinates.y;
 
-        if (x < 0 || x >= screenData.resolution.x || y < 0 || y >= screenData.resolution.y ) {
+        if (x < 0 || x >= screenData.resolution.x || y < 0 || y >= screenData.resolution.y) {
             return;
         }
 
@@ -183,119 +198,99 @@ io.on('connection', function(socket){
         io.emit('afterDraw', data);
     });
 
-    socket.on('imageUpload', function({file, name = 'super-awesome-image'}) {
+    socket.on('imageUpload', function ({file, name = 'super-awesome-image'}) {
 
         let gmFile = gm(file);
 
         //Identify gif data
-        gmFile
-            .identify(function (err, data) {
-                if (!err) {
+        let extension = '';
+        let frameLength = '';
 
-                    console.log(data);
+        let error = false;
+        gmFile.identify(function (err, data) {
 
-                    const extension = '.' + data.format.toLowerCase();
+            if (err) {
+                console.log('imageUploadIdentifyError' + err);
+                error = true;
+                return;
+            }
 
-                    const frameLength = data.Delay && data.Delay.map((length) => {
 
-                        const percentOfSecond = length.substring(0, length.lastIndexOf('x'));
+            extension = data.format.toLowerCase();
 
-                        return parseInt(percentOfSecond, 10) * 10 || 100;
+            frameLength =
+                data.Delay && data.Delay.map((length) => {
 
-                    }) || [];
+                    const percentOfSecond = length.substring(0, length.lastIndexOf('x'));
+                    return parseInt(percentOfSecond, 10) * 10 || 100;
+                }) || [];
 
-                    const sanitizedName = sanitizeFilename(name);
 
-                    const path = './public/images/artwork/';
+            gmFile
+                .coalesce()
+                .scale(screenData.resolution.x, screenData.resolution.y)
+                .gravity('Center')
+                .background('black')
+                .extent(screenData.resolution.x, screenData.resolution.y)
+                .toBuffer(extension, (err, buffer) => {
 
-                    let filePath = path + sanitizedName + extension;
-                    if (fs.existsSync(filePath)) {
-                        filePath = path + sanitizedName + Date.now() + extension;
+                    if (err) {
+                        console.log('gmFileToBufferError', err);
+                        error = true;
+                        return;
                     }
 
-                    gmFile
-                        .coalesce()
-                        .scale(screenData.resolution.x, screenData.resolution.y)
-                        .gravity('Center')
-                        .background('black')
-                        .extent(screenData.resolution.x, screenData.resolution.y)
-                        .write(filePath, function (err) {
+                    getPixels(buffer, 'image/' + extension, (err, pixels) => {
 
-                            if (!err) {
+                        if (err) {
+                            console.log('getPixelsError', err);
+                            error = true;
+                            return;
+                        }
 
-                                getPixels(filePath, function(err, pixels) {
+                        //gif!
+                        if (frameLength.length > 0) {
 
-                                    if (!err) {
+                            let currentFrame = 0;
 
-                                        //gif!
-                                        if (frameLength.length > 0) {
+                            const parseFrame = function () {
 
-                                            let currentFrame = 0;
+                                const dataLength = pixels.data.length / frameLength.length;
 
-                                            const parseFrame = function() {
+                                const imageData = pixels.data.slice(dataLength * currentFrame, dataLength * (currentFrame + 1));
 
-                                                const dataLength = pixels.data.length / frameLength.length;
+                                const pixelData = getPixelDataFromImage(imageData);
 
-                                                const imageData = pixels.data.slice(dataLength * currentFrame, dataLength * (currentFrame + 1));
+                                afterImage(pixelData);
 
-                                                const pixelData = getPixelDataFromImage(imageData);
+                                currentFrame++;
+                                if (currentFrame === frameLength.length) {
+                                    currentFrame = 0;
+                                }
 
-                                                setScreenData(Object.assign(
-                                                    screenData,
-                                                    pixelData
-                                                ));
+                                currentCycle = setTimeout(parseFrame, frameLength[currentFrame]);
+                            };
 
-                                                ws281x.render(screenData.pixelData);
+                            clearTimeout(currentCycle);
+                            currentCycle = setTimeout(parseFrame, frameLength[0]);
 
-                                                io.emit('afterImage', serialize(screenData));
+                        } else {
 
-                                                currentFrame++;
-                                                if (currentFrame === frameLength.length) {
-                                                    currentFrame = 0;
-                                                }
+                            const pixelData = getPixelDataFromImage(pixels.data);
 
-                                                currentCycle = setTimeout(parseFrame, frameLength[currentFrame]);
-                                            };
+                            afterImage(pixelData);
+                        }
 
-                                            clearTimeout(currentCycle);
-                                            currentCycle = setTimeout(parseFrame, frameLength[0]);
+                    });
+                });
 
-                                        } else {
 
-                                            const pixelData = getPixelDataFromImage(pixels.data);
-
-                                            setScreenData(Object.assign(
-                                                screenData,
-                                                pixelData
-                                            ));
-
-                                            ws281x.render(screenData.pixelData);
-
-                                            io.emit('afterImage', serialize(screenData));
-
-                                        }
-
-                                    } else {
-                                        console.log('getPixelsError', err);
-                                    }
-
-                                });
-
-                            } else {
-                                console.log('imageWriteError', err);
-                            }
-
-                        });
-
-                } else {
-                    console.log('imageUploadIdentifyError' + err);
-                }
-            });
+        });
 
     });
 
 
-    socket.on('reset', function() {
+    socket.on('reset', function () {
 
 
         setScreenData(Object.assign(
@@ -315,7 +310,9 @@ io.on('connection', function(socket){
 process.on('SIGINT', function () {
     ws281x.reset();
     io.emit('reset', screenData);
-    process.nextTick(function () { process.exit(0); });
+    process.nextTick(function () {
+        process.exit(0);
+    });
 });
 
 server.listen(1365);
