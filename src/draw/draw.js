@@ -63,9 +63,8 @@ export default React.createClass({
     },
 
     onChangeColor( color ) {
-
         this.setState({
-            color: color.hex,
+            color: color.hex.substring(1, color.hex.length),
         });
     },
 
