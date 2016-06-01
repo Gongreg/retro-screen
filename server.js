@@ -1,10 +1,15 @@
 "use strict";
 
+const sanitizeFilename = require('sanitize-filename');
+const fs = require('fs');
+
 const R = require('ramda');
 
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
+
+const getPixels = require('get-pixels');
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -36,6 +41,12 @@ let screenData = {
     brightness: DEFAULT_BRIGHTNESS,
     maxBrightness: DEFAULT_BRIGHTNESS,
 };
+
+function setScreenData(data) {
+    screenData = data;
+    clearTimeout(currentCycle);
+}
+
 
 function rowReverse(rowIndex) {
     return rowIndex % 2 == 0;
@@ -83,7 +94,25 @@ function calculateIndex(screenData, coordinates) {
     return coordinates.y * resolution.x + rowIndex;
 }
 
+function getPixelDataFromImage(data) {
+    const fixedData = R.splitEvery(4, data).map((data) => {
+
+        let rgb = data[0];
+        rgb = (rgb << 8) + data[1];
+        rgb = (rgb << 8) + data[2];
+
+        return rgb;
+    });
+
+    const ledsArray = R.splitEvery(screenData.resolution.x, fixedData);
+
+    return parse({pixelData: ledsArray});
+
+}
+
 const ws281x = require('rpi-ws281x-native');
+
+const gm = require('gm').subClass({imageMagick: true});
 
 ws281x.init(NUM_LEDS);
 ws281x.render(screenData.pixelData);
@@ -92,6 +121,8 @@ ws281x.render(screenData.pixelData);
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+
+let currentCycle = null;
 
 io.on('connection', function(socket){
     console.log('a user connected');
@@ -107,11 +138,11 @@ io.on('connection', function(socket){
 
         if (newBrightness >= 0 && newBrightness <= 100) {
 
-            screenData = Object.assign(
+            setScreenData(Object.assign(
                 {},
                 screenData,
                 { brightness: newBrightness }
-            );
+            ));
 
             ws281x.setBrightness(screenData.brightness);
             ws281x.render(screenData.pixelData);
@@ -141,35 +172,137 @@ io.on('connection', function(socket){
         let pixelData = screenData.pixelData;
         pixelData[index] = data.color;
 
-        screenData = Object.assign(
+        setScreenData(Object.assign(
             {},
             screenData,
             { pixelData: pixelData }
-        );
+        ));
 
         ws281x.render(screenData.pixelData);
 
         io.emit('afterDraw', data);
     });
 
-    socket.on('image', function(data) {
-        screenData = Object.assign(
-            {},
-            parse(data)
-        );
+    socket.on('imageUpload', function({file, name = 'super-awesome-image'}) {
 
-        ws281x.render(screenData.pixelData);
+        let gmFile = gm(file);
 
-        io.emit('afterImage', serialize(screenData));
+        //Identify gif data
+        gmFile
+            .identify(function (err, data) {
+                if (!err) {
+
+                    console.log(data);
+
+                    const extension = '.' + data.format.toLowerCase();
+
+                    const frameLength = data.Delay && data.Delay.map((length) => {
+
+                        const percentOfSecond = length.substring(0, length.lastIndexOf('x'));
+
+                        return parseInt(percentOfSecond, 10) * 10 || 100;
+
+                    }) || [];
+
+                    const sanitizedName = sanitizeFilename(name);
+
+                    const path = './public/images/artwork/';
+
+                    let filePath = path + sanitizedName + extension;
+                    if (fs.existsSync(filePath)) {
+                        filePath = path + sanitizedName + Date.now() + extension;
+                    }
+
+                    gmFile
+                        .coalesce()
+                        .scale(screenData.resolution.x, screenData.resolution.y)
+                        .gravity('Center')
+                        .background('black')
+                        .extent(screenData.resolution.x, screenData.resolution.y)
+                        .write(filePath, function (err) {
+
+                            if (!err) {
+
+                                getPixels(filePath, function(err, pixels) {
+
+                                    if (!err) {
+
+                                        //gif!
+                                        if (frameLength.length > 0) {
+
+                                            let currentFrame = 0;
+
+                                            const parseFrame = function() {
+
+                                                const dataLength = pixels.data.length / frameLength.length;
+
+                                                const imageData = pixels.data.slice(dataLength * currentFrame, dataLength * (currentFrame + 1));
+
+                                                const pixelData = getPixelDataFromImage(imageData);
+
+                                                setScreenData(Object.assign(
+                                                    screenData,
+                                                    pixelData
+                                                ));
+
+                                                ws281x.render(screenData.pixelData);
+
+                                                io.emit('afterImage', serialize(screenData));
+
+                                                currentFrame++;
+                                                if (currentFrame === frameLength.length) {
+                                                    currentFrame = 0;
+                                                }
+
+                                                currentCycle = setTimeout(parseFrame, frameLength[currentFrame]);
+                                            };
+
+                                            clearTimeout(currentCycle);
+                                            currentCycle = setTimeout(parseFrame, frameLength[0]);
+
+                                        } else {
+
+                                            const pixelData = getPixelDataFromImage(pixels.data);
+
+                                            setScreenData(Object.assign(
+                                                screenData,
+                                                pixelData
+                                            ));
+
+                                            ws281x.render(screenData.pixelData);
+
+                                            io.emit('afterImage', serialize(screenData));
+
+                                        }
+
+                                    } else {
+                                        console.log('getPixelsError', err);
+                                    }
+
+                                });
+
+                            } else {
+                                console.log('imageWriteError', err);
+                            }
+
+                        });
+
+                } else {
+                    console.log('imageUploadIdentifyError' + err);
+                }
+            });
+
     });
 
 
     socket.on('reset', function() {
-        screenData = Object.assign(
+
+
+        setScreenData(Object.assign(
             {},
             screenData,
             { pixelData: new Uint32Array(NUM_LEDS) }
-        );
+        ));
 
         ws281x.render(screenData.pixelData);
 

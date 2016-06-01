@@ -126,18 +126,8 @@ export default React.createClass({
         });
     },
 
-    onUploadImage(data) {
-
-        const screenData = {
-            ...this.state.screenData,
-            pixelData: data,
-        };
-
-        this.socket.emit('image', screenData);
-
-        this.setState({
-            screenData,
-        });
+    onUploadImage({ file, name }) {
+        this.socket.emit('imageUpload', { file, name });
     },
 
     onChangeBrightness(brightness) {

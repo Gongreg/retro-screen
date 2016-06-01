@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import R from 'ramda';
 import Dropzone from 'react-dropzone';
+import sanitizeFilename from 'sanitize-filename';
 
 export default React.createClass({
     displayName: 'ScreenTest',
@@ -13,43 +14,45 @@ export default React.createClass({
 
     getInitialState() {
         return {
-            file: {},
+            file: null,
+            name: 'super-awesome-image',
         };
     },
 
-    onDrop: function (files) {
+    onDrop: function(files) {
 
         const file = files[0];
 
-        const { x, y } = this.props.screenData.resolution;
+        const name = sanitizeFilename(file.name.substring(0, file.name.lastIndexOf('.') || file.name.length));
 
-        let image = new Image(x, y);
+        this.setState({
+            file,
+            name
+        });
 
-        image.onload = () => {
+    },
 
-            let canvas = document.createElement('canvas');
-            canvas.width = x;
-            canvas.height = y;
+    onClickUpload() {
 
-            let context = canvas.getContext('2d');
-            context.drawImage(image, 0, 0, x, y);
-            const imageData = context.getImageData(0, 0, x, y);
+        const { file, name } = this.state;
 
-            const fixedData = R.splitEvery(4, imageData.data).map((data) => {
-                let rgb = data[0];
-                rgb = (rgb << 8) + data[1];
-                rgb = (rgb << 8) + data[2];
+        if (!file) {
+            return;
+        }
 
-                return rgb;
-            });
+        this.props.onUploadImage({file, name});
+    },
 
-            const ledsArray = R.splitEvery(x, fixedData);
+    onClickCancel() {
+        this.setState({
+            file: null,
+        });
+    },
 
-            this.props.onUploadImage(ledsArray);
-        };
-
-        image.src = file.preview;
-
+    onChange(event) {
+        this.setState({
+            name: event.target.value,
+        });
     },
 
     render() {
@@ -66,17 +69,31 @@ export default React.createClass({
         return (
             <div>
                 <h1>Images</h1>
+                {!this.state.file &&
                 <Dropzone
                     style={{
                         width: '500px',
                         height: '100px',
                         border: '2px dashed #666',
                     }}
+                    accept={ "image/*" }
                     onDrop={ this.onDrop }
                     multiple={ false }
                 >
                     <div>Try dropping some files here, or click to select files to upload.</div>
                 </Dropzone>
+                }
+
+                {this.state.file &&
+                    <div>
+                        <img src={this.state.file.preview} height="64" />
+                        <label>Display name: <input onChange={ this.onChange } value={ this.state.name }/></label>
+                        <button onClick={ this.onClickUpload }>Upload</button>
+                        <button onClick={ this.onClickCancel }>Cancel</button>
+                    </div>
+                }
+
+
             </div>
         );
     },
