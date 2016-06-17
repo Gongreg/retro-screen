@@ -32,12 +32,7 @@ export default React.createClass({
                         <Nav>
                             <NavItem href="draw"><Link to="draw">Draw</Link></NavItem>
                             <NavItem><Link to="images">Images</Link></NavItem>
-                            <NavDropdown title="Games" id="dropdown-games">
-                                <MenuItem><Link to="nonogram">Nonogram</Link></MenuItem>
-                                <MenuItem><Link to="snake">Snake</Link></MenuItem>
-                                <MenuItem><Link to="tetris">Tetris</Link></MenuItem>
-                                <MenuItem><Link to="ping-pong">Ping pong</Link></MenuItem>
-                            </NavDropdown>
+                            <NavItem><Link to="clock">Clock</Link></NavItem>
                             <NavItem><Link to="equalizer">Equalizer</Link></NavItem>
                             <NavItem><Link to="scripts">Script runner</Link></NavItem>
                         </Nav>

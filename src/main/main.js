@@ -143,6 +143,10 @@ export default React.createClass({
         });
     },
 
+    onOpenClock() {
+        this.socket.emit('openClock');
+    },
+
     render() {
 
         const childrenWithProps = React.Children.map(
@@ -151,6 +155,7 @@ export default React.createClass({
                 ...this.state,
                 onDraw: this.onDraw,
                 onUploadImage: this.onUploadImage,
+                onOpenClock: this.onOpenClock,
             })
         );
 

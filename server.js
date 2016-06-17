@@ -47,6 +47,80 @@ function setScreenData(data) {
     clearTimeout(currentCycle);
 }
 
+const numbers = [
+    [
+        1, 1, 1,
+        1, 0, 1,
+        1, 0, 1,
+        1, 0, 1,
+        1, 1, 1,
+    ],
+    [
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+    ],
+    [
+        1, 1, 1,
+        0, 0, 1,
+        1, 1, 1,
+        1, 0, 0,
+        1, 1, 1,
+    ],
+    [
+        1, 1, 1,
+        0, 0, 1,
+        1, 1, 1,
+        0, 0, 1,
+        1, 1, 1,
+    ],
+    [
+        1, 0, 1,
+        1, 0, 1,
+        1, 1, 1,
+        0, 0, 1,
+        0, 0, 1,
+    ],
+    [
+        1, 1, 1,
+        1, 0, 0,
+        1, 1, 1,
+        0, 0, 1,
+        1, 1, 1,
+    ],
+    [
+        1, 1, 1,
+        1, 0, 0,
+        1, 1, 1,
+        1, 0, 1,
+        1, 1, 1,
+    ],
+    [
+        1, 1, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+    ],
+    [
+        1, 1, 1,
+        1, 0, 1,
+        1, 1, 1,
+        1, 0, 1,
+        1, 1, 1,
+    ],
+    [
+        1, 1, 1,
+        1, 0, 1,
+        1, 1, 1,
+        0, 0, 1,
+        1, 1, 1,
+    ],
+];
+
+
 
 function rowReverse(rowIndex) {
     return rowIndex % 2 == 0;
@@ -83,6 +157,24 @@ function parse(screenData) {
             pixelData: rows,
         }
     );
+}
+
+function createEmptyMulti() {
+    return R.range(0, screenData.resolution.y).map(
+        x => R.range(0, screenData.resolution.x).map(R.always(0))
+    );
+}
+
+function createMultiFromData(data) {
+    return R.splitEvery(16, data).map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : ledRow);
+}
+
+function multiToSingle(multi) {
+
+    const sortedRows = multi.map((ledRow, rowIndex) => rowReverse(rowIndex) ? R.reverse(ledRow) : ledRow);
+
+    return R.flatten(sortedRows);
+
 }
 
 function calculateIndex(screenData, coordinates) {
@@ -133,6 +225,8 @@ ws281x.render(screenData.pixelData);
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+
+const moment = require('moment');
 
 let currentCycle = null;
 
@@ -289,6 +383,144 @@ io.on('connection', function (socket) {
 
     });
 
+    socket.on('openClock', function() {
+
+        let secondsColor = 0x00ffff;
+
+        function rerenderClock() {
+
+
+            const seconds = moment().format('s');
+            const hours = moment().format('HH');
+            const minutes = moment().format('mm');
+
+            let pixelData = createMultiFromData(screenData.pixelData);
+
+            if (seconds == 1) {
+
+                if (secondsColor === 0x00ffff) {
+                    secondsColor = 0xffff00;
+                } else {
+                    secondsColor = 0x00ffff;
+                }
+            }
+
+            function drawSeconds(data, seconds) {
+                let pixelData = R.clone(data);
+
+                const x = screenData.resolution.x;
+
+                const maxRadius = Math.floor(x / 2);
+
+                for (let radius = 1; radius <= maxRadius; radius++) {
+
+                    const perimeter = 4 * (radius * 2 - 1) || 1;
+
+                    let pixelsToColor = Math.round((perimeter / 60) * seconds) || 1;
+
+                    for (var i = 1; i <= pixelsToColor; i++) {
+
+                        if (radius === 1) {
+                            if (i === 1) {
+                                pixelData[maxRadius - 1][maxRadius] = secondsColor;
+                            } else if (i === 2) {
+                                pixelData[maxRadius][maxRadius] = secondsColor;
+                            } else if (i === 3) {
+                                pixelData[maxRadius][maxRadius - 1] = secondsColor;
+                            } else {
+                                pixelData[maxRadius - 1][maxRadius - 1] = secondsColor;
+                            }
+
+                            continue;
+                        }
+
+                        const topRight = radius;
+                        const bottomRight = 3 * radius - 1; // 3 radiuses to right - 1
+                        const bottomLeft = 5 * radius - 2; // 5 radiuses to right - 2 corners
+                        const topLeft = 7 * radius - 3; // 7 radiuses to right - 3 corners
+
+                        if (i <= topRight) {
+                            pixelData[maxRadius - radius][maxRadius + i - 1] = secondsColor;
+                        }
+
+                        if (i > topRight && i <= bottomRight) {
+
+                            const rightSide = i - topRight;
+
+                            pixelData[maxRadius - radius + rightSide][maxRadius + radius - 1] = secondsColor;
+                        }
+
+                        if (i > bottomRight && i <= bottomLeft) {
+                            const bottomSide = i - bottomRight;
+
+                            pixelData[maxRadius + radius - 1][maxRadius + radius - bottomSide - 1] = secondsColor;
+                        }
+
+                        if (i > bottomLeft && i <= topLeft) {
+                            const leftSide = i - bottomLeft;
+
+                            pixelData[maxRadius + radius - 1 - leftSide][maxRadius - radius] = secondsColor;
+                        }
+
+                        if (i > topLeft) {
+                            const topSide = i - topLeft;
+
+                            pixelData[maxRadius - radius][maxRadius - radius + topSide] = secondsColor;
+                        }
+                    }
+
+                }
+
+                return pixelData;
+
+            }
+
+            if (seconds == 0) {
+                pixelData = drawSeconds(pixelData, 60);
+            } else {
+                pixelData = drawSeconds(pixelData, seconds);
+            }
+
+            function drawNumber(data, number, topLeftX, topLeftY) {
+                let pixelData = R.clone(data);
+
+                let segments = numbers[number];
+
+                for (var i = 0; i < 5; i++) {
+                    for (var j = 0; j < 3; j++) {
+
+                        const color = segments[i * 3 + j] ? 0xffffff : pixelData[topLeftX + i][topLeftY + j];
+                        pixelData[topLeftX + i][topLeftY + j] = color;
+                    }
+                }
+
+                return pixelData;
+            }
+
+            pixelData = drawNumber(pixelData, Math.floor(hours / 10), 2, 4);
+            pixelData = drawNumber(pixelData, hours % 10, 2, 9);
+            pixelData = drawNumber(pixelData, Math.floor(minutes / 10), 9, 4);
+            pixelData = drawNumber(pixelData, minutes % 10, 9, 9);
+
+            screenData = Object.assign(
+                {},
+                screenData,
+                { pixelData: multiToSingle(pixelData) }
+            );
+
+            ws281x.render(screenData.pixelData);
+
+            io.emit('afterImage', serialize(screenData));
+
+        }
+
+        clearTimeout(currentCycle);
+        currentCycle = setTimeout(() => {
+            clearTimeout(currentCycle);
+            currentCycle = setInterval(rerenderClock, 1000);
+        }, 1000 - (+ new Date() % 1000));
+
+    });
 
     socket.on('reset', function () {
 
