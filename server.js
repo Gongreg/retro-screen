@@ -40,6 +40,11 @@ let screenData = {
     pixelData: new Uint32Array(NUM_LEDS),
     brightness: DEFAULT_BRIGHTNESS,
     maxBrightness: DEFAULT_BRIGHTNESS,
+    clockColors: {
+        0: 0xffffff,
+        1: 0x00ff00,
+        2: 0x0000ff,
+    },
 };
 
 function setScreenData(data) {
@@ -385,25 +390,27 @@ io.on('connection', function (socket) {
 
     socket.on('openClock', function() {
 
-        let secondsColor = 0x00ffff;
-
+        let colorIndex = 1;
+        let reset = false;
         function rerenderClock() {
 
+            const date = moment().add(1, 'second');
 
-            const seconds = moment().format('s');
-            const hours = moment().format('HH');
-            const minutes = moment().format('mm');
+            const seconds = date.format('s');
+            const hours = date.format('HH');
+            const minutes = date.format('mm');
 
             let pixelData = createMultiFromData(screenData.pixelData);
 
-            if (seconds == 1) {
-
-                if (secondsColor === 0x00ffff) {
-                    secondsColor = 0xffff00;
-                } else {
-                    secondsColor = 0x00ffff;
-                }
+            if (seconds == 1 && reset) {
+                colorIndex = !colorIndex;
             }
+
+            if (seconds == 59) {
+                reset = true;
+            }
+
+            let secondsColor = screenData.clockColors[colorIndex + 1];
 
             function drawSeconds(data, seconds) {
                 let pixelData = R.clone(data);
@@ -489,7 +496,7 @@ io.on('connection', function (socket) {
                 for (var i = 0; i < 5; i++) {
                     for (var j = 0; j < 3; j++) {
 
-                        const color = segments[i * 3 + j] ? 0xffffff : pixelData[topLeftX + i][topLeftY + j];
+                        const color = segments[i * 3 + j] ? screenData.clockColors[0] : pixelData[topLeftX + i][topLeftY + j];
                         pixelData[topLeftX + i][topLeftY + j] = color;
                     }
                 }
@@ -502,28 +509,50 @@ io.on('connection', function (socket) {
             pixelData = drawNumber(pixelData, Math.floor(minutes / 10), 9, 4);
             pixelData = drawNumber(pixelData, minutes % 10, 9, 9);
 
-            screenData = Object.assign(
+
+            return Object.assign(
                 {},
                 screenData,
                 { pixelData: multiToSingle(pixelData) }
             );
 
+            //screenData = Object.assign(
+            //    {},
+            //    screenData,
+            //    { pixelData: multiToSingle(pixelData) }
+            //);
+            //
+            //ws281x.render(screenData.pixelData);
+            //
+            //io.emit('afterImage', serialize(screenData));
+
+        }
+
+        function render() {
+            screenData = Object.assign({}, data);
+
             ws281x.render(screenData.pixelData);
 
             io.emit('afterImage', serialize(screenData));
 
+            currentCycle = setTimeout(render, 1000 - (+ new Date() % 1000));
+            setTimeout(() => { data = rerenderClock() }, 0);
+
+
         }
 
         clearTimeout(currentCycle);
+
+        let data = rerenderClock();
+
         currentCycle = setTimeout(() => {
             clearTimeout(currentCycle);
-            currentCycle = setInterval(rerenderClock, 1000);
+            currentCycle = setTimeout(render, 0);
         }, 1000 - (+ new Date() % 1000));
 
     });
 
     socket.on('reset', function () {
-
 
         setScreenData(Object.assign(
             {},
@@ -535,6 +564,17 @@ io.on('connection', function (socket) {
 
         io.emit('afterReset', serialize(screenData));
     });
+
+    socket.on('onChangeClockColor', function(data) {
+        const number = data.number || 0;
+
+        const parsed = parseInt(data.color, 16);
+
+        const color = !isNaN(parsed) ? parsed : 0xffffff;
+
+        screenData.clockColors[number] = color;
+
+    })
 
 });
 
