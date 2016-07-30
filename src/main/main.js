@@ -28,7 +28,7 @@ export default React.createClass({
         this.socket.on('afterDraw', this.afterDraw);
         this.socket.on('afterBrightness', this.afterBrightness);
         this.socket.on('afterReset', this.afterReset);
-        this.socket.on('afterImage', this.afterImage);
+        this.socket.on('newState', this.newState);
     },
 
     onInit(screenData) {
@@ -39,7 +39,7 @@ export default React.createClass({
 
     },
 
-    afterImage(screenData) {
+    newState(screenData) {
         this.setState({
             screenData,
         });
@@ -144,7 +144,7 @@ export default React.createClass({
     },
 
     onOpenClock() {
-        this.socket.emit('openClock');
+        this.socket.emit('clock');
     },
 
     onChangeClockColor(data) {

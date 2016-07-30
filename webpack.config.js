@@ -35,7 +35,7 @@ module.exports = {
         modulesDirectories: ['src', 'node_modules'],
         extensions: ['', '.js', '.json'],
     },
-    devtool: 'eval-source-map',
+    devtool: 'cheap-eval-source-map',
     devServer: {
         port: 11111,
         inline: true,
