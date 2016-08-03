@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap/lib';
+import { Nav, Navbar, NavDropdown, Modal, ModalBody, ModalHeader, Button } from 'react-bootstrap/lib';
 import NavItem from 'nav-item/nav-item';
 import MenuItem from 'menu-item/menu-item';
 import { Link } from 'react-router';
@@ -11,8 +11,26 @@ export default React.createClass({
         screenData: PropTypes.object,
     },
 
+    getInitialState() {
+        return {
+            showModal: false,
+        };
+    },
+
     onChangeBrightness(e) {
         this.props.onChangeBrightness(e.target.value);
+    },
+
+    onClickShutdown() {
+        this.setState({
+            showModal: true,
+        });
+    },
+
+    onHide() {
+        this.setState({
+            showModal: false,
+        });
     },
 
     render() {
@@ -50,9 +68,20 @@ export default React.createClass({
                             </NavItem>
                             <NavItem><Link to="screen">Test screen</Link></NavItem>
                             <NavItem><a onClick={ this.props.onReset }>Reset</a></NavItem>
+                            <NavItem><a onClick={ this.onClickShutdown }>Shutdown</a></NavItem>
                         </Nav>
                     </Navbar.Collapse>
                 </Navbar>
+                <Modal show={this.state.showModal} onHide={this.onHide}>
+                    <ModalHeader closeButton>
+                        <Modal.Title>Turn off?</Modal.Title>
+                    </ModalHeader>
+                    <ModalBody>
+                        <Button onClick={this.props.onShutdown}>Shutdown</Button>
+                        <Button onClick={this.onHide}>Close</Button>
+                    </ModalBody>
+                </Modal>
+
             </div>
         );
     },

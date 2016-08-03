@@ -7,7 +7,6 @@ const { createEmptyMulti, multiToSingle } = require('../utils');
 function drawSeconds(data, seconds, resolution, color) {
 
     if (seconds === 0) {
-        console.log('do nothing!');
         return data;
     }
 

@@ -79,8 +79,6 @@ const screenController = {
         if (this.state.rerender) {
             this.state.rerender = false;
 
-            console.log('rerender?');
-
             ws281x.setBrightness(this.state.screenData.brightness);
             ws281x.render(this.state.screenData.pixelData);
         }

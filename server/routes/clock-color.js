@@ -1,7 +1,7 @@
 const screenController = require('../screen-controller');
 
 module.exports = function (io, socket) {
-    socket.on('onChangeClockColor', function(data) {
+    socket.on('clockColor', function(data) {
         const number = data.number || 0;
 
         const parsed = parseInt(data.color, 16);

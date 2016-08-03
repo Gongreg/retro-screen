@@ -17,6 +17,8 @@ module.exports = function initRoutes(io) {
         require('./routes/clock')(io, socket);
         require('./routes/clock-color')(io, socket);
 
+        require('./routes/shutdown')(io, socket);
+
         socket.on('disconnect', function () {
             console.log('user disconnected');
         });

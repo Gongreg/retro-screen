@@ -148,7 +148,12 @@ export default React.createClass({
     },
 
     onChangeClockColor(data) {
-        this.socket.emit('onChangeClockColor', data);
+        this.socket.emit('clockColor', data);
+    },
+
+    onShutdown() {
+        console.log('test1');
+        this.socket.emit('shutdown');
     },
 
     render() {
@@ -166,7 +171,7 @@ export default React.createClass({
 
         return (
             <div>
-                <Menu { ...this.state } onReset={ this.onReset } onChangeBrightness={ this.onChangeBrightness }/>
+                <Menu { ...this.state } onReset={ this.onReset } onShutdown={ this.onShutdown } onChangeBrightness={ this.onChangeBrightness }/>
                     <div className="flex-container">
                         { childrenWithProps }
                     </div>
