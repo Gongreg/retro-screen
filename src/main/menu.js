@@ -51,7 +51,7 @@ export default React.createClass({
                             <NavItem href="draw"><Link to="draw">Draw</Link></NavItem>
                             <NavItem><Link to="images">Images</Link></NavItem>
                             <NavItem><Link to="clock">Clock</Link></NavItem>
-                            <NavItem><Link to="equalizer">Equalizer</Link></NavItem>
+                            <NavItem><Link to="music">Music player</Link></NavItem>
                             <NavItem><Link to="scripts">Script runner</Link></NavItem>
                         </Nav>
                         <Nav pullRight>

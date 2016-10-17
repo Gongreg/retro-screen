@@ -19,6 +19,7 @@ export default React.createClass({
                 maxBrightness: 0,
             },
             loading: true,
+            musicSearchResults: [],
         };
     },
 
@@ -29,12 +30,20 @@ export default React.createClass({
         this.socket.on('afterBrightness', this.afterBrightness);
         this.socket.on('afterReset', this.afterReset);
         this.socket.on('newState', this.newState);
+        this.socket.on('afterSearch', this.afterSearch);
     },
 
-    onInit(screenData) {
+    afterSearch(musicSearchResults) {
+        this.setState({
+            musicSearchResults,
+        });
+    },
+
+    onInit({ screenData, musicSearchResults }) {
         this.setState({
             loading: false,
             screenData,
+            musicSearchResults,
         });
 
     },
@@ -152,7 +161,6 @@ export default React.createClass({
     },
 
     onShutdown() {
-        console.log('test1');
         this.socket.emit('shutdown');
     },
 
@@ -166,6 +174,7 @@ export default React.createClass({
                 onUploadImage: this.onUploadImage,
                 onOpenClock: this.onOpenClock,
                 onChangeClockColor: this.onChangeClockColor,
+                socket: this.socket,
             })
         );
 

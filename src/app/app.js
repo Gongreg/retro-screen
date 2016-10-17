@@ -8,6 +8,7 @@ import Draw from 'draw/draw';
 import Screen from 'screen/test';
 import Images from 'images/images';
 import Clock from 'clock/clock';
+import Music from 'music/music';
 import WIP from 'wip/wip';
 
 ReactDOM.render(
@@ -20,7 +21,7 @@ ReactDOM.render(
                 <Route path="draw" component={Draw}/>
                 <Route path="images" component={Images}/>
                 <Route path="clock" component={Clock}/>
-                <Route path="equalizer" component={WIP}/>
+                <Route path="music" component={Music}/>
                 <Route path="scripts" component={WIP}/>
             </Route>
         </Router>
