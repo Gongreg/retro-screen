@@ -43,3 +43,15 @@
     display: flex;
     width: auto;
 }
+
+/* Already solved */
+
+.color-container {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.clock-color-select {
+    margin-right: 30px;
+    flex-direction: row;
+}

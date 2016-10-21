@@ -1,6 +1,6 @@
 {
   "name": "leds",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "16x16 led screen",
   "main": "server.js",
   "dependencies": {

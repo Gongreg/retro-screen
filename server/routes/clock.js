@@ -30,13 +30,23 @@ module.exports = function (io, socket) {
     });
 
     socket.on('clockColor', function(data) {
-        const number = data.number || 0;
 
-        const parsed = parseInt(data.color, 16);
+        const number = parseInt(data.number, 10);
 
-        const color = !isNaN(parsed) ? parsed : 0xffffff;
+        if (isNaN(number)) {
+            return;
+        }
+
+        const colorString = typeof data.color === 'string' ? data.color.substr(1) : '';
+
+        const color = parseInt(colorString, 16);
+
+        if (isNaN(color)) {
+            return;
+        }
 
         const clockColors = screenController.getScreenData().clockColors;
+
         clockColors[number] = color;
 
         screenController.setScreenState({ clockColors });

@@ -97,8 +97,6 @@ function drawNumber(data, color, number, topLeftX, topLeftY) {
     return pixelData;
 }
 
-let i = 0;
-let j = 0;
 function getClockState(screenData) {
 
     const date = moment().add(1, 'second');

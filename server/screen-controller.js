@@ -17,7 +17,7 @@ const screenController = {
             pixelData: new Uint32Array(256),
             brightness: 100,
             maxBrightness: 255,
-            clockColors: [0xffffff, 0x000000, 0xff00ff],
+            clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
         },
         rerender: false,
         fps: 60,

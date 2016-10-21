@@ -3,6 +3,16 @@ import R from 'ramda';
 
 import Menu from './menu';
 
+//TODO find out why i can't move it to utils.
+//import { parseScreenData } from './utils';
+import parseColor from 'parse-color/parse-color';
+
+const toHexString = R.map(parseColor);
+const parseScreenData = (screenData) => ({
+    ...screenData,
+    clockColors: toHexString(screenData.clockColors)
+});
+
 export default React.createClass({
 
     displayName: 'Main',
@@ -40,9 +50,10 @@ export default React.createClass({
     },
 
     onInit({ screenData, musicSearchResults }) {
+
         this.setState({
             loading: false,
-            screenData,
+            screenData: parseScreenData(screenData),
             musicSearchResults,
         });
 
@@ -50,7 +61,7 @@ export default React.createClass({
 
     newState(screenData) {
         this.setState({
-            screenData,
+            screenData: parseScreenData(screenData),
         });
     },
 
@@ -94,7 +105,9 @@ export default React.createClass({
     },
 
     afterReset(screenData) {
-        this.setState(screenData);
+        this.setState({
+            screenData: parseScreenData(screenData),
+        });
     },
 
     onReset() {

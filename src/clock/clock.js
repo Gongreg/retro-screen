@@ -1,9 +1,7 @@
 import React, { PropTypes } from 'react';
 import R from 'ramda';
-import moment from 'moment';
-import { SketchPicker } from 'react-color';
-import Screen from 'screen/screen';
-import parseColor from 'parse-color/parse-color';
+
+import ColorSelect from './color-select';
 
 export default React.createClass({
     displayName: 'Draw',
@@ -14,94 +12,46 @@ export default React.createClass({
         onOpenClock: PropTypes.func,
     },
 
-    getInitialState() {
-        return {
-            color: R.mapObjIndexed(x => parseColor(x), this.props.screenData.clockColors),
-        };
-    },
-
-    componentWillReceiveProps(newProps) {
-        this.setState({
-            color: R.mapObjIndexed(x => parseColor(x), newProps.screenData.clockColors),
-        });
-    },
-
-    onChangeColorNumbers(color) {
-
-        const hexColor = color.hex.substring(1, color.hex.length);
-
-        console.log(color);
-
-        this.setState({
-            color: {
-                ...this.state.color,
-                0: '#' + hexColor,
-            }
-        });
-
-        this.props.onChangeClockColor({ number: 0, color: hexColor });
-    },
-
-    onChangeColor1(color) {
-
-        const hexColor = color.hex.substring(1, color.hex.length);
-
-        this.setState({
-            color: {
-                ...this.state.color,
-                1: '#' + hexColor,
-            }
-        });
-
-        this.props.onChangeClockColor({ number: 1, color: hexColor });
-    },
-
-    onChangeColor2(color) {
-
-        const hexColor = color.hex.substring(1, color.hex.length);
-
-        this.setState({
-            color: {
-                ...this.state.color,
-                2: '#' + hexColor,
-            }
-        });
-
-        this.props.onChangeClockColor({ number: 2, color: hexColor });
+    onChangeColor(number, color) {
+        this.props.onChangeClockColor({ number, color });
     },
 
     render() {
 
-        if (this.props.loading) {
+        const { screenData: { clockColors }, loading, onOpenClock } = this.props;
+
+        if (loading) {
             return <div>Loading</div>;
         }
 
         return (
-            <div>
+            <div className="clock">
                 <h1>Clock</h1>
 
-                <div>
-                    Numbers color:
-                    <SketchPicker
-                        color={this.state.color[0]}
-                        onChangeComplete={this.onChangeColorNumbers}
+                <div className="color-container">
+                    <ColorSelect
+                        color={ clockColors[0] }
+                        index={ 0 }
+                        text="Color #1:"
+                        onChangeComplete={ this.onChangeColor }
                     />
-                </div>
-                <div>
-                    Color #1:
-                    <SketchPicker
-                        color={this.state.color[1]}
-                        onChangeComplete={this.onChangeColor1}/>
-                </div>
-                <div>
-                    Color #2:
-                    <SketchPicker
-                        color={this.state.color[2]}
-                        onChangeComplete={this.onChangeColor2}
+
+                    <ColorSelect
+                        color={ clockColors[1] }
+                        index={ 1 }
+                        text="Color #2:"
+                        onChangeComplete={ this.onChangeColor }
+                    />
+
+                    <ColorSelect
+                        color={ clockColors[2] }
+                        index={ 2 }
+                        text="Numbers color:"
+                        onChangeComplete={ this.onChangeColor }
                     />
                 </div>
 
-                <button onClick={ this.props.onOpenClock }> Start </button>
+                <button onClick={ onOpenClock }>Start</button>
             </div>
         );
     },

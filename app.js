@@ -37,7 +37,6 @@ screenController.init({
     defaultBrightness: 100,
     maxBrightness: 255,
     fps: 60,
-
 });
 
 
@@ -68,44 +67,44 @@ const colors = [
 0x7f12ee,
 ];
 
-var unixServer = net.createServer((c) => {
-    // 'connection' listener
-    console.log('client connected');
-    c.on('end', () => {
-        console.log('client disconnected');
-    });
-
-    c.on('data', (e) => {
-
-        const data = e.toString('utf8');
-
-        const splitData = data.split(',').slice(0, 16).map(i => parseInt(i, 10));
-
-        if (splitData.length == 0) {
-            return;
-        }
-
-        const emptyMulti = utils.createEmptyMulti({x: 16, y: 16});
-
-        const coloredMulti = emptyMulti.map((row, y) => {
-            return row.map((element, x) => {
-                if (16 - y <= 1 + splitData[x]) {
-                    return colors[16 - y];
-                }
-
-                return 0;
-            })
-        });
-
-        screenController.setScreenState({
-            pixelData: utils.multiToSingle(coloredMulti),
-        });
-
-        io.emit('newState', screenController.getSerializedScreenData());
-    });
-});
-
-unixServer.listen('/tmp/testas');
+//var unixServer = net.createServer((c) => {
+//    // 'connection' listener
+//    console.log('client connected');
+//    c.on('end', () => {
+//        console.log('client disconnected');
+//    });
+//
+//    c.on('data', (e) => {
+//
+//        const data = e.toString('utf8');
+//
+//        const splitData = data.split(',').slice(0, 16).map(i => parseInt(i, 10));
+//
+//        if (splitData.length == 0) {
+//            return;
+//        }
+//
+//        const emptyMulti = utils.createEmptyMulti({x: 16, y: 16});
+//
+//        const coloredMulti = emptyMulti.map((row, y) => {
+//            return row.map((element, x) => {
+//                if (16 - y <= 1 + splitData[x]) {
+//                    return colors[16 - y];
+//                }
+//
+//                return 0;
+//            })
+//        });
+//
+//        screenController.setScreenState({
+//            pixelData: utils.multiToSingle(coloredMulti),
+//        });
+//
+//        io.emit('newState', screenController.getSerializedScreenData());
+//    });
+//});
+//
+//unixServer.listen('/tmp/testas');
 
 
 process.on('SIGINT', function () {
