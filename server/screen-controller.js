@@ -7,25 +7,25 @@ const screenController = {
     initialState: {},
 
     //example of state
-    state: {
-        screenData: {
-            leds: 256,
-            resolution: {
-                x: 16,
-                y: 16,
-            },
-            pixelData: new Uint32Array(256),
-            brightness: 100,
-            maxBrightness: 255,
-            clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
-        },
-        rerender: false,
-        fps: 60,
-        timeout: 0,
-        renderTimeout: null,
-        nextRender: 0,
-        timeouts: {},
-    },
+    //state: {
+    //    screenData: {
+    //        leds: 256,
+    //        resolution: {
+    //            x: 16,
+    //            y: 16,
+    //        },
+    //        pixelData: new Uint32Array(256),
+    //        brightness: 100,
+    //        maxBrightness: 255,
+    //        clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
+    //    },
+    //    rerender: false,
+    //    fps: 60,
+    //    timeout: 0,
+    //    renderTimeout: null,
+    //    nextRender: 0,
+    //    timeouts: {},
+    //},
 
     init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
 
@@ -38,7 +38,7 @@ const screenController = {
                 pixelData: new Uint32Array(leds),
                 brightness: defaultBrightness,
                 maxBrightness,
-                clockColors: [0xac4352, 0x12dd22, 0xff00ff],
+                clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
             },
             rerender: true,
             fps,
