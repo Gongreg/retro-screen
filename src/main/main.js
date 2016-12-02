@@ -123,7 +123,7 @@ export default React.createClass({
         this.setState({
             screenData: {
                 ...screenData,
-                pixelData: setAllElementsToZero(screenData.pixelData)
+                pixelData: setAllElementsToZero(screenData.pixelData),
             },
         });
 

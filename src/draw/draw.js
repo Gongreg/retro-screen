@@ -146,9 +146,6 @@ export default React.createClass({
                         <button style={{ marginTop: '10px', marginRight: '30px' }} onClick={ this.onClickSave }>
                             Save
                         </button>
-                        <button style={{ marginTop: '10px' }} onClick={ this.onClickMoreColor }>
-                            Upload
-                        </button>
                     </div>
                 </div>
 

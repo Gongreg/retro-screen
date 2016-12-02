@@ -2,10 +2,11 @@ const screenController = require('../screen-controller');
 
 module.exports = function (io, socket) {
 
-    socket.on('reset', function (brightness) {
+    socket.on('reset', function () {
+
         screenController.reset();
 
-        io.emit('afterReset', screenController.getScreenData());
+        io.emit('afterReset', screenController.getSerializedScreenData());
 
     });
 };

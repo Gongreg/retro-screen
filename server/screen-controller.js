@@ -47,7 +47,7 @@ const screenController = {
             timeouts: {},
         };
 
-        this.initialState = initialState;
+        this.initialState = Object.assign({}, initialState);
         this.state = initialState;
 
         ws281x.init(this.state.screenData.leds);
@@ -101,6 +101,7 @@ const screenController = {
     },
 
     getSerializedScreenData() {
+
         return serialize(this.state.screenData);
     },
 
@@ -112,7 +113,9 @@ const screenController = {
         clearTimeouts(this.state.timeouts);
 
         this.setState({
-            screenData: this.initialState.screenData,
+            screenData: Object.assign(
+                {}, this.initialState.screenData, { pixelData: new Uint32Array(this.initialState.screenData.leds) }
+            ),
             timeouts: {},
         });
     },
