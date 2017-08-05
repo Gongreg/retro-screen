@@ -49,8 +49,8 @@ export default React.createClass({
                     <Navbar.Collapse>
                         <Nav>
                             <NavItem href="draw"><Link to="draw">Draw</Link></NavItem>
-                            <NavItem><Link to="images">Images</Link></NavItem>
                             <NavItem><Link to="clock">Clock</Link></NavItem>
+                            <NavItem><Link to="images">Images</Link></NavItem>
                             <NavItem><Link to="music">Music player</Link></NavItem>
                             <NavItem><Link to="scripts">Script runner</Link></NavItem>
                         </Nav>

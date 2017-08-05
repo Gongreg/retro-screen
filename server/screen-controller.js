@@ -23,7 +23,7 @@ const { serialize, clearTimeouts: clearTimeoutsHelper } = require('./utils');
 //    timeouts: {},
 //},
 
-const screenController = {};
+const sctrl = {};
 
 function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
 
@@ -46,18 +46,18 @@ function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
     timeouts: {},
   };
 
-  screenController.initialState = Object.assign({}, initialState);
-  screenController.state = initialState;
+  sctrl.initialState = Object.assign({}, initialState);
+  sctrl.state = initialState;
 
-  ws281x.init(screenController.state.screenData.leds);
+  ws281x.init(sctrl.state.screenData.leds);
 
   render();
 }
 
 function setState(state, rerender = true) {
-  screenController.state = Object.assign(
+  sctrl.state = Object.assign(
     {},
-    screenController.state,
+    sctrl.state,
     state,
     { rerender }
   );
@@ -65,62 +65,62 @@ function setState(state, rerender = true) {
 
 function setScreenState(screenData, rerender = true) {
 
-  screenController.state.screenData = Object.assign(
+  sctrl.state.screenData = Object.assign(
     {},
-    screenController.state.screenData,
+    sctrl.state.screenData,
     screenData
   );
 
-  screenController.state.rerender = rerender;
+  sctrl.state.rerender = rerender;
 }
 
 function render() {
-  if (screenController.state.rerender) {
-    screenController.state.rerender = false;
+  if (sctrl.state.rerender) {
+    sctrl.state.rerender = false;
 
-    ws281x.setBrightness(screenController.state.screenData.brightness);
-    ws281x.render(screenController.state.screenData.pixelData);
+    ws281x.setBrightness(sctrl.state.screenData.brightness);
+    ws281x.render(sctrl.state.screenData.pixelData);
   }
 
   const now = +new Date;
-  const late = now > screenController.state.nextRender ? now - screenController.state.nextRender : 0;
-  const nextRender = screenController.state.timeout - late;
+  const late = now > sctrl.state.nextRender ? now - sctrl.state.nextRender : 0;
+  const nextRender = sctrl.state.timeout - late;
 
-  screenController.state.nextRender = now + nextRender;
-  screenController.state.renderTimeout = setTimeout(render, nextRender);
+  sctrl.state.nextRender = now + nextRender;
+  sctrl.state.renderTimeout = setTimeout(render, nextRender);
 }
 
 function exit() {
-  ws281x.reset();
+  clearTimeout(sctrl.state.renderTimeout);
   clearTimeouts();
+  ws281x.reset();
 }
 
 function getScreenData() {
-  return screenController.state.screenData;
+  return sctrl.state.screenData;
 }
 
 function getSerializedScreenData() {
-  return serialize(screenController.state.screenData);
+  return serialize(sctrl.state.screenData);
 }
 
 function clearTimeouts() {
-  clearTimeoutsHelper(screenController.state.timeouts);
+  clearTimeoutsHelper(sctrl.state.timeouts);
 }
 
 function reset() {
-  clearTimeouts(screenController.state.timeouts);
-  clearTimeout(screenController.state.renderTimeout);
+  clearTimeouts(sctrl.state.timeouts);
 
-  screenController.setState({
+  setState({
     screenData: Object.assign(
-      {}, screenController.initialState.screenData, { pixelData: new Uint32Array(screenController.initialState.screenData.leds) }
+      {}, sctrl.initialState.screenData, { pixelData: new Uint32Array(sctrl.initialState.screenData.leds) }
     ),
     timeouts: {},
   });
 }
 
 function addTimeout(name, timeout) {
-  screenController.state.timeouts[name] = timeout;
+  sctrl.state.timeouts[name] = timeout;
 }
 
 module.exports = {
