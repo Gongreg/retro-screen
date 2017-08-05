@@ -6,7 +6,7 @@ module.exports = function (io, socket) {
         const newBrightness = parseInt(brightness);
 
         if (newBrightness >= 0 && newBrightness <= screenController.getScreenData().maxBrightness) {
-            screenController.setScreenState({ brightness });
+            screenController.setScreenState({ brightness: newBrightness });
 
             socket.broadcast.emit('afterBrightness', brightness);
         }
