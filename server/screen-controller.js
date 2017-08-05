@@ -1,128 +1,137 @@
 const ws281x = require('rpi-ws281x-native');
 
-const { serialize, clearTimeouts } = require('./utils');
+const { serialize, clearTimeouts: clearTimeoutsHelper } = require('./utils');
 
-const screenController = {
+//example of state
+//state: {
+//    screenData: {
+//        leds: 256,
+//        resolution: {
+//            x: 16,
+//            y: 16,
+//        },
+//        pixelData: new Uint32Array(256),
+//        brightness: 100,
+//        maxBrightness: 255,
+//        clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
+//    },
+//    rerender: false,
+//    fps: 60,
+//    timeout: 0,
+//    renderTimeout: null,
+//    nextRender: 0,
+//    timeouts: {},
+//},
 
-    initialState: {},
+const screenController = {};
 
-    //example of state
-    //state: {
-    //    screenData: {
-    //        leds: 256,
-    //        resolution: {
-    //            x: 16,
-    //            y: 16,
-    //        },
-    //        pixelData: new Uint32Array(256),
-    //        brightness: 100,
-    //        maxBrightness: 255,
-    //        clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
-    //    },
-    //    rerender: false,
-    //    fps: 60,
-    //    timeout: 0,
-    //    renderTimeout: null,
-    //    nextRender: 0,
-    //    timeouts: {},
-    //},
+function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
 
-    init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
+  const timeout = 1000 / fps;
 
-        const timeout = 1000 / fps;
-
-        const initialState = {
-            screenData: {
-                leds,
-                resolution,
-                pixelData: new Uint32Array(leds),
-                brightness: defaultBrightness,
-                maxBrightness,
-                clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
-            },
-            rerender: true,
-            fps,
-            timeout,
-            nextRender: +new Date,
-            timeouts: {},
-        };
-
-        this.initialState = Object.assign({}, initialState);
-        this.state = initialState;
-
-        ws281x.init(this.state.screenData.leds);
-
-        this.render();
+  const initialState = {
+    screenData: {
+      leds,
+      resolution,
+      pixelData: new Uint32Array(leds),
+      brightness: defaultBrightness,
+      maxBrightness,
+      clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
     },
+    rerender: true,
+    fps,
+    timeout,
+    nextRender: +new Date,
+    renderTimeout: null,
+    timeouts: {},
+  };
 
-    setState(state, rerender = true) {
-        this.state = Object.assign(
-            {},
-            this.state,
-            state,
-            { rerender }
-        );
-    },
+  screenController.initialState = Object.assign({}, initialState);
+  screenController.state = initialState;
 
-    setScreenState(screenData, rerender = true) {
+  ws281x.init(screenController.state.screenData.leds);
 
-        this.state.screenData = Object.assign(
-            {},
-            this.state.screenData,
-            screenData
-        );
+  render();
+}
 
-        this.state.rerender = rerender;
-    },
+function setState(state, rerender = true) {
+  screenController.state = Object.assign(
+    {},
+    screenController.state,
+    state,
+    { rerender }
+  );
+}
 
-    render() {
-        if (this.state.rerender) {
-            this.state.rerender = false;
+function setScreenState(screenData, rerender = true) {
 
-            ws281x.setBrightness(this.state.screenData.brightness);
-            ws281x.render(this.state.screenData.pixelData);
-        }
+  screenController.state.screenData = Object.assign(
+    {},
+    screenController.state.screenData,
+    screenData
+  );
 
-        const now = +new Date;
-        const late = now > this.state.nextRender ? now - this.state.nextRender : 0;
-        const nextRender = now + this.state.timeout - late;
+  screenController.state.rerender = rerender;
+}
 
-        this.state.nextRender = nextRender;
-        this.state.timeouts.render = setTimeout(this.render.bind(this), nextRender);
-    },
+function render() {
+  if (screenController.state.rerender) {
+    screenController.state.rerender = false;
 
-    exit() {
-        ws281x.reset();
-        clearTimeouts(this.state.timeouts);
-    },
+    ws281x.setBrightness(screenController.state.screenData.brightness);
+    ws281x.render(screenController.state.screenData.pixelData);
+  }
 
-    getScreenData() {
-        return this.state.screenData;
-    },
+  const now = +new Date;
+  const late = now > screenController.state.nextRender ? now - screenController.state.nextRender : 0;
+  const nextRender = screenController.state.timeout - late;
 
-    getSerializedScreenData() {
+  screenController.state.nextRender = now + nextRender;
+  screenController.state.renderTimeout = setTimeout(render, nextRender);
+}
 
-        return serialize(this.state.screenData);
-    },
+function exit() {
+  ws281x.reset();
+  clearTimeouts();
+}
 
-    clearTimeouts() {
-        clearTimeouts(this.state.timeouts);
-    },
+function getScreenData() {
+  return screenController.state.screenData;
+}
 
-    reset() {
-        clearTimeouts(this.state.timeouts);
+function getSerializedScreenData() {
+  return serialize(screenController.state.screenData);
+}
 
-        this.setState({
-            screenData: Object.assign(
-                {}, this.initialState.screenData, { pixelData: new Uint32Array(this.initialState.screenData.leds) }
-            ),
-            timeouts: {},
-        });
-    },
+function clearTimeouts() {
+  clearTimeoutsHelper(screenController.state.timeouts);
+}
 
-    setTimeout(name, timeout) {
-        this.state.timeouts[name] = timeout;
-    }
+function reset() {
+  clearTimeouts(screenController.state.timeouts);
+  clearTimeout(screenController.state.renderTimeout);
+
+  screenController.setState({
+    screenData: Object.assign(
+      {}, screenController.initialState.screenData, { pixelData: new Uint32Array(screenController.initialState.screenData.leds) }
+    ),
+    timeouts: {},
+  });
+}
+
+function addTimeout(name, timeout) {
+  screenController.state.timeouts[name] = timeout;
+}
+
+module.exports = {
+  init,
+  render,
+  reset,
+  exit,
+  getSerializedScreenData,
+  getScreenData,
+  clearTimeouts,
+  setState,
+  setScreenState,
+  setTimeout: addTimeout,
 };
-
-module.exports = screenController;
