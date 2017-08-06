@@ -49,7 +49,7 @@ function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
   sctrl.initialState = Object.assign({}, initialState);
   sctrl.state = initialState;
 
-  ws281x.init(sctrl.state.screenData.leds);
+  ws281x.init(sctrl.state.screenData.leds, {dmaNum: 10});
 
   render();
 }
