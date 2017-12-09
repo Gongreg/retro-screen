@@ -108,12 +108,13 @@ function clearTimeouts() {
   clearTimeoutsHelper(sctrl.state.timeouts);
 }
 
-function reset() {
+function reset({resetBrightness} = {resetBrightness: true}) {
   clearTimeouts(sctrl.state.timeouts);
 
   setState({
     screenData: Object.assign(
-      {}, sctrl.initialState.screenData, { pixelData: new Uint32Array(sctrl.initialState.screenData.leds) }
+      {}, sctrl.initialState.screenData, { pixelData: new Uint32Array(sctrl.initialState.screenData.leds) },
+      resetBrightness ? {} : {brightness: sctrl.state.screenData.brightness}
     ),
     timeouts: {},
   });

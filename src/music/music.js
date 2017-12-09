@@ -1,8 +1,5 @@
 import React, { PropTypes } from 'react';
 
-import TrackList from './track-list';
-import MusicPlayer from './music-player';
-
 export default React.createClass({
     displayName: 'Music',
 
@@ -12,10 +9,6 @@ export default React.createClass({
             <div>
 
                 <h1>Music</h1>
-
-                <TrackList { ...this.props } />
-
-                <MusicPlayer { ...this.props } />
 
             </div>
         );

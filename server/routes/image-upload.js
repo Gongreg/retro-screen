@@ -33,7 +33,7 @@ module.exports = function (io, socket) {
     }
 
     function afterImage(pixelData) {
-        screenController.reset();
+        screenController.reset({resetBrightness: false});
         screenController.setScreenState(
             {
                 pixelData: imagePixelsToPixelData(pixelData, screenController.getScreenData().resolution)
