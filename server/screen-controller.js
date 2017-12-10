@@ -37,6 +37,7 @@ function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
       brightness: defaultBrightness,
       maxBrightness,
       clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
+      visualizerEnabled: false,
     },
     rerender: true,
     fps,

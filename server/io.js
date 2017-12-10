@@ -18,7 +18,6 @@ module.exports = function initRoutes(io) {
 
     require('./routes/clock')(io, socket);
 
-    require('./routes/youtube')(io, socket);
     require('./routes/music')(io, socket);
 
     require('./routes/shutdown')(io, socket);

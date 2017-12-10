@@ -1,8 +1,4 @@
 import React from 'react';
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap/lib';
-import NavItem from 'nav-item/nav-item';
-import MenuItem from 'menu-item/menu-item';
-import { Link } from 'react-router';
 
 export default React.createClass({
 

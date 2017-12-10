@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
-import { Nav, Navbar, NavDropdown, Modal, ModalBody, ModalHeader, Button } from 'react-bootstrap/lib';
+import { Nav, Navbar, Modal, ModalBody, ModalHeader, Button } from 'react-bootstrap/lib';
 import NavItem from 'nav-item/nav-item';
-import MenuItem from 'menu-item/menu-item';
 import { Link } from 'react-router';
 
 export default React.createClass({
@@ -19,6 +18,10 @@ export default React.createClass({
 
     onChangeBrightness(e) {
         this.props.onChangeBrightness(e.target.value);
+    },
+
+    onChangeVisualizerEnabled() {
+      this.props.onChangeVisualizerEnabled();
     },
 
     onClickShutdown() {
@@ -51,10 +54,21 @@ export default React.createClass({
                             <NavItem href="draw"><Link to="draw">Draw</Link></NavItem>
                             <NavItem><Link to="clock">Clock</Link></NavItem>
                             <NavItem><Link to="images">Images</Link></NavItem>
-                            <NavItem><Link to="music">Music player</Link></NavItem>
                             <NavItem><Link to="scripts">Script runner</Link></NavItem>
                         </Nav>
                         <Nav pullRight>
+                            <NavItem>
+                                <div style={{ padding: '15px 0' }}>
+                                    <label>
+                                        Visualizer
+                                    <input
+                                      type="checkbox"
+                                      checked={ screenData.visualizerEnabled }
+                                      onChange={this.onChangeVisualizerEnabled}
+                                    />
+                                    </label>
+                                </div>
+                            </NavItem>
                             <NavItem>
                                 <div style={{ padding: '15px 0' }}>
                                     <input

@@ -9,197 +9,229 @@ import parseColor from 'parse-color/parse-color';
 
 const toHexString = R.map(parseColor);
 const parseScreenData = (screenData) => ({
-    ...screenData,
-    clockColors: toHexString(screenData.clockColors)
+  ...screenData,
+  clockColors: toHexString(screenData.clockColors)
 });
 
 export default React.createClass({
 
-    displayName: 'Main',
+  displayName: 'Main',
 
-    getInitialState() {
-        return {
-            screenData: {
-                pixelData: [],
-                resolution: {
-                    x: 0,
-                    y: 0,
-                },
-                brightness: 0,
-                maxBrightness: 0,
-            },
-            loading: true,
-            musicSearchResults: [],
-        };
-    },
+  getInitialState() {
+    return {
+      screenData: {
+        pixelData: [],
+        resolution: {
+          x: 0,
+          y: 0,
+        },
+        brightness: 0,
+        maxBrightness: 0,
+      },
+      loading: true,
+      musicSearchResults: [],
+    };
+  },
 
-    componentWillMount() {
-        this.socket = io();
-        this.socket.on('init', this.onInit);
-        this.socket.on('afterDraw', this.afterDraw);
-        this.socket.on('afterBrightness', this.afterBrightness);
-        this.socket.on('afterReset', this.afterReset);
-        this.socket.on('newState', this.newState);
-        this.socket.on('afterSearch', this.afterSearch);
-    },
+  componentWillMount() {
+    this.socket = io();
+    this.socket.on('init', this.onInit);
+    this.socket.on('afterDraw', this.afterDraw);
+    this.socket.on('afterBrightness', this.afterBrightness);
+    this.socket.on('afterVisualizerEnabled', this.afterEnableVisualizer);
+    this.socket.on('afterReset', this.afterReset);
+    this.socket.on('newState', this.newState);
+    this.socket.on('afterSearch', this.afterSearch);
+  },
 
-    afterSearch(musicSearchResults) {
-        this.setState({
-            musicSearchResults,
-        });
-    },
+  afterSearch(musicSearchResults) {
+    this.setState({
+      musicSearchResults,
+    });
+  },
 
-    onInit({ screenData, musicSearchResults }) {
+  onInit({screenData}) {
 
-        this.setState({
-            loading: false,
-            screenData: parseScreenData(screenData),
-            musicSearchResults,
-        });
+    this.setState({
+      loading: false,
+      screenData: parseScreenData(screenData),
+    });
 
-    },
+  },
 
-    newState(screenData) {
-        this.setState({
-            screenData: parseScreenData(screenData),
-        });
-    },
+  newState(screenData) {
+    this.setState({
+      screenData: parseScreenData(screenData),
+    });
+  },
 
-    afterBrightness(brightness) {
-        let oldBrightness = this.state.screenData.brightness;
+  afterBrightness(brightness) {
+    let oldBrightness = this.state.screenData.brightness;
 
-        if (oldBrightness === brightness) {
-            return;
-        }
+    if (oldBrightness === brightness) {
+      return;
+    }
 
-        const screenData = {
-            ...this.state.screenData,
-            brightness,
-        };
+    const screenData = {
+      ...this.state.screenData,
+      brightness,
+    };
 
-        this.setState({
-            screenData,
-        });
-    },
+    this.setState({
+      screenData,
+    });
+  },
 
-    afterDraw({coordinates, color}) {
+  afterEnableVisualizer(enabled) {
+    let previousEnabled = this.state.screenData.visualizerEnabled;
 
-        const {x, y} = coordinates;
+    if (previousEnabled === enabled) {
+      return;
+    }
 
-        let pixelData = this.state.screenData.pixelData;
+    const screenData = {
+      ...this.state.screenData,
+      visualizerEnabled: enabled,
+    };
 
-        if (pixelData[y][x] === color) {
-            return;
-        }
+    this.setState({
+      screenData,
+    });
+  },
 
-        pixelData[y][x] = color;
+  afterDraw({coordinates, color}) {
 
-        const screenData = {
-            ...this.state.screenData,
-            pixelData,
-        };
+    const {x, y} = coordinates;
 
-        this.setState({
-            screenData,
-        });
-    },
+    let pixelData = this.state.screenData.pixelData;
 
-    afterReset(screenData) {
-        this.setState({
-            screenData: parseScreenData(screenData),
-        });
-    },
+    if (pixelData[y][x] === color) {
+      return;
+    }
 
-    onReset() {
+    pixelData[y][x] = color;
 
-        const { screenData } = this.state;
+    const screenData = {
+      ...this.state.screenData,
+      pixelData,
+    };
 
-        const setAllElementsToZero = R.pipe(
-            R.flatten,
-            R.map(R.always(0)),
-            R.splitEvery(this.state.screenData.resolution.x)
-        );
+    this.setState({
+      screenData,
+    });
+  },
 
-        this.setState({
-            screenData: {
-                ...screenData,
-                pixelData: setAllElementsToZero(screenData.pixelData),
-            },
-        });
+  afterReset(screenData) {
+    this.setState({
+      screenData: parseScreenData(screenData),
+    });
+  },
 
-        this.socket.emit('reset');
-    },
+  onReset() {
 
-    onDraw({coordinates, color}) {
+    const {screenData} = this.state;
 
-        const {x, y} = coordinates;
-        let pixelData = this.state.screenData.pixelData;
-        pixelData[y][x] = color;
+    const setAllElementsToZero = R.pipe(
+      R.flatten,
+      R.map(R.always(0)),
+      R.splitEvery(this.state.screenData.resolution.x)
+    );
 
-        const screenData = {
-            ...this.state.screenData,
-            pixelData,
-        };
+    this.setState({
+      screenData: {
+        ...screenData,
+        pixelData: setAllElementsToZero(screenData.pixelData),
+      },
+    });
 
-        this.socket.emit('draw', {coordinates: {x, y}, color});
+    this.socket.emit('reset');
+  },
 
-        this.setState({
-            screenData
-        });
-    },
+  onDraw({coordinates, color}) {
 
-    onUploadImage({ file, name }) {
-        this.socket.emit('imageUpload', { file, name });
-    },
+    const {x, y} = coordinates;
+    let pixelData = this.state.screenData.pixelData;
+    pixelData[y][x] = color;
 
-    onChangeBrightness(brightness) {
-        const screenData = {
-            ...this.state.screenData,
-            brightness,
-        };
+    const screenData = {
+      ...this.state.screenData,
+      pixelData,
+    };
 
-        this.socket.emit('brightness', brightness);
+    this.socket.emit('draw', {coordinates: {x, y}, color});
 
-        this.setState({
-            screenData,
-        });
-    },
+    this.setState({
+      screenData
+    });
+  },
 
-    onOpenClock() {
-        this.socket.emit('clock');
-    },
+  onUploadImage({file, name}) {
+    this.socket.emit('imageUpload', {file, name});
+  },
 
-    onChangeClockColor(data) {
-        this.socket.emit('clockColor', data);
-    },
+  onChangeBrightness(brightness) {
+    const screenData = {
+      ...this.state.screenData,
+      brightness,
+    };
 
-    onShutdown() {
-        this.socket.emit('shutdown');
-    },
+    this.socket.emit('brightness', brightness);
 
-    render() {
+    this.setState({
+      screenData,
+    });
+  },
 
-        const childrenWithProps = React.Children.map(
-            this.props.children,
-            (child) => React.cloneElement(child, {
-                ...this.state,
-                onDraw: this.onDraw,
-                onUploadImage: this.onUploadImage,
-                onOpenClock: this.onOpenClock,
-                onChangeClockColor: this.onChangeClockColor,
-                socket: this.socket,
-            })
-        );
+  onOpenClock() {
+    this.socket.emit('clock');
+  },
 
-        return (
-            <div>
-                <Menu { ...this.state } onReset={ this.onReset } onShutdown={ this.onShutdown } onChangeBrightness={ this.onChangeBrightness }/>
-                    <div className="flex-container">
-                        { childrenWithProps }
-                    </div>
+  onChangeClockColor(data) {
+    this.socket.emit('clockColor', data);
+  },
 
-            </div>
-        );
-    },
+  onShutdown() {
+    this.socket.emit('shutdown');
+  },
+
+  onChangeVisualizerEnabled() {
+    const screenData = {
+      ...this.state.screenData,
+      visualizerEnabled: !this.state.screenData.visualizerEnabled,
+    };
+
+    this.socket.emit('visualizerEnabled');
+
+    this.setState({
+      screenData,
+    });
+  },
+
+  render() {
+
+    const childrenWithProps = React.Children.map(
+      this.props.children,
+      (child) => React.cloneElement(child, {
+        ...this.state,
+        onDraw: this.onDraw,
+        onUploadImage: this.onUploadImage,
+        onOpenClock: this.onOpenClock,
+        onChangeClockColor: this.onChangeClockColor,
+        socket: this.socket,
+        onChangeVisualizerEnabled: this.onChangeVisualizerEnabled,
+      })
+    );
+
+    return (
+      <div>
+        <Menu {...this.state} onChangeVisualizerEnabled={this.onChangeVisualizerEnabled} onReset={this.onReset}
+              onShutdown={this.onShutdown} onChangeBrightness={this.onChangeBrightness}/>
+        <div className="flex-container">
+          {childrenWithProps}
+        </div>
+
+      </div>
+    );
+  },
 });
 
