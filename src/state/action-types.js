@@ -1,0 +1,11 @@
+export const ON_INIT = 'onInit';
+export const ON_DRAW = 'onDraw';
+export const AFTER_DRAW = 'afterDraw';
+export const AFTER_BRIGHTNESS = 'afterBrightness';
+export const AFTER_VISUALIZER_ENABLED = 'afterVisualizerEnabled';
+export const ON_CHANGE_CLOCK_COLOR = 'onChangeClockColor';
+export const DUMMY = 'dummy';
+export const ON_NEW_STATE = 'onNewState';
+export const ON_RESET = 'onReset';
+export const ON_CHANGE_BRIGHTNESS = 'onChangeBrightness';
+export const ON_CHANGE_VISUALIZER_ENABLED = 'onChangeVisualizerEnabled';

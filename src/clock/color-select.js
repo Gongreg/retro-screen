@@ -1,33 +1,26 @@
-import React, { PropTypes } from 'react';
+import React, {PureComponent} from 'react';
+import {SketchPicker} from 'react-color';
 
-import { SketchPicker } from 'react-color';
+export default class ColorSelect extends PureComponent {
+  static displayName = 'ClockColorSelect';
 
-export default React.createClass({
-    displayName: 'ClockColorSelect',
+  onChangeComplete = (color) => {
+    this.props.onChangeComplete(this.props.index, color.hex);
+  };
 
-    onChangeComplete(color) {
+  render() {
 
-        this.props.onChangeComplete(this.props.index, color.hex);
-    },
+    const {text, color} = this.props;
 
-    render() {
+    const className = 'clock-color-select';
 
-        const { text, color, ...props } = this.props;
-
-        const className = 'clock-color-select';
-
-        //const className = classnames(
-        //    'clock-color-select',
-        //    props.className,
-        //)
-
-        return (
-            <div className={ className }>
-                { text }
-                <SketchPicker
-                    color={ color }
-                    onChangeComplete={ this.onChangeComplete }/>
-            </div>
-        );
-    },
-});
+    return (
+      <div className={className}>
+        {text}
+        <SketchPicker
+          color={color}
+          onChangeComplete={this.onChangeComplete}/>
+      </div>
+    );
+  }
+}
