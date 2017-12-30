@@ -12,6 +12,7 @@ import Screen from './screen/test-screen';
 import Images from './images';
 import Clock from './clock';
 import WIP from './wip';
+import Text from './text';
 
 import reducer from './state/reducer';
 
@@ -29,6 +30,7 @@ const Entry = () => (
             <Route path="/draw" component={Draw}/>
             <Route path="/images" component={Images}/>
             <Route path="/clock" component={Clock}/>
+            <Route path="/text" component={Text}/>s
             <Route path="/scripts" component={WIP}/>
           </Switch>
         </div>

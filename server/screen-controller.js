@@ -2,27 +2,6 @@ const ws281x = require('rpi-ws281x-native');
 
 const { serialize, clearTimeouts: clearTimeoutsHelper } = require('./utils');
 
-//example of state
-//state: {
-//    screenData: {
-//        leds: 256,
-//        resolution: {
-//            x: 16,
-//            y: 16,
-//        },
-//        pixelData: new Uint32Array(256),
-//        brightness: 100,
-//        maxBrightness: 255,
-//        clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
-//    },
-//    rerender: false,
-//    fps: 60,
-//    timeout: 0,
-//    renderTimeout: null,
-//    nextRender: 0,
-//    timeouts: {},
-//},
-
 const sctrl = {};
 
 function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
@@ -37,6 +16,9 @@ function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
       brightness: defaultBrightness,
       maxBrightness,
       clockColors: [0x4A90E2, 0xD0021B, 0xF8E71C],
+      textColors: [0xFFFFFF, 0x000000],
+      text: '',
+      textSpeed: 100,
       visualizerEnabled: false,
     },
     rerender: true,

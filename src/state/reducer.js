@@ -4,12 +4,15 @@ import * as R from 'ramda';
 const initialState = {
   screenData: {
     pixelData: [],
+    textColors: [],
+    clockColors: [],
     resolution: {
       x: 0,
       y: 0,
     },
     brightness: 0,
     maxBrightness: 0,
+    textSpeed: 0,
   },
   loading: true,
 };
@@ -25,6 +28,8 @@ const setAllElementsToZero = (x) => R.pipe(
 export default (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.ON_INIT: {
+      console.log(action.screenData);
+
       return {
         ...state,
         screenData: action.screenData,
@@ -54,6 +59,13 @@ export default (state = initialState, action) => {
     }
     case actionTypes.ON_CHANGE_CLOCK_COLOR: {
       return R.assocPath(['screenData', 'clockColors', action.number], action.color, state);
+    }
+    case actionTypes.ON_CHANGE_TEXT_COLOR: {
+      return R.assocPath(['screenData', 'textColors', action.number], action.color, state);
+    }
+    case actionTypes.ON_CHANGE_TEXT_SPEED: {
+      console.log(action.textSpeed);
+      return R.assocPath(['screenData', 'textSpeed'], action.textSpeed, state);
     }
     case actionTypes.AFTER_BRIGHTNESS: {
       let oldBrightness = state.screenData.brightness;

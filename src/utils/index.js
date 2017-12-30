@@ -14,6 +14,7 @@ const toHexString = R.map(parseColor);
 export function parseScreenData(screenData) {
   return {
     ...screenData,
-    clockColors: toHexString(screenData.clockColors)
+    clockColors: toHexString(screenData.clockColors),
+    textColors: toHexString(screenData.textColors),
   };
 }

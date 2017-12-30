@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
 import * as actions from '../state/actions';
-import ColorSelect from './color-select';
+import ColorSelect from '../color-select';
 
 class Clock extends PureComponent {
   static displayName = 'Clock';

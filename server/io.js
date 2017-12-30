@@ -17,6 +17,7 @@ module.exports = function initRoutes(io) {
     require('./routes/image-upload')(io, socket);
 
     require('./routes/clock')(io, socket);
+    require('./routes/text')(io, socket);
 
     require('./routes/music')(io, socket);
 

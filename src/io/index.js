@@ -29,6 +29,14 @@ class ioClient {
     this.socket.emit('clockColor', {number, color});
   };
 
+  onChangeTextColor = ({number, color}) => {
+    this.socket.emit('textColor', {number, color});
+  };
+
+  onStartText = (text) => {
+    this.socket.emit('text', text);
+  };
+
   onOpenClock = () => {
     this.socket.emit('clock');
   };
@@ -64,6 +72,11 @@ class ioClient {
   onChangeVisualizerEnabled = () => {
     this.socket.emit('visualizerEnabled');
   };
+
+  onChangeTextSpeed = (textSpeed) => {
+    console.log('emit', textSpeed);
+    this.socket.emit('textSpeed', textSpeed);
+  }
 }
 
 export default new ioClient();

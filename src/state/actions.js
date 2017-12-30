@@ -28,6 +28,33 @@ export function afterDraw({coordinates, color}) {
   };
 }
 
+export function onChangeTextColor({number, color}) {
+  ioClient.onChangeTextColor({number, color});
+
+  return {
+    type: actionTypes.ON_CHANGE_TEXT_COLOR,
+    number,
+    color
+  };
+}
+
+export function onChangeTextSpeed(textSpeed) {
+  ioClient.onChangeTextSpeed(textSpeed);
+
+  return {
+    type: actionTypes.ON_CHANGE_TEXT_SPEED,
+    textSpeed,
+  };
+}
+
+export function onStartText(text) {
+  ioClient.onStartText(text);
+
+  return {
+    type: actionTypes.DUMMY,
+  };
+}
+
 export function onChangeClockColor({number, color}) {
   ioClient.onChangeClockColor({number, color});
 
