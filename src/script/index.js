@@ -41,7 +41,7 @@ class Scripts extends PureComponent {
   };
 
   onSaveCode = () => {
-    this.props.dispatch(actions.onSaveCode({code: this.state.code, name: this.state.name}));
+    //this.props.dispatch(actions.onSaveCode({code: this.state.code, name: this.state.name}));
   };
 
   render() {

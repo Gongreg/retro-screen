@@ -4,7 +4,6 @@ const ejs = require('ejs');
 const http = require('http');
 const path = require('path');
 const app = express();
-const spotify = require('./server/spotify/spotify');
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -24,8 +23,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/*', function (req, res) {
   res.render('index.html');
 });
-
-spotify.connect();
 
 const server = http.createServer(app);
 server.listen(1365);
