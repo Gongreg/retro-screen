@@ -38,7 +38,7 @@ screenController.init({
     y: 16,
   },
   defaultBrightness: 100,
-  maxBrightness: 255,
+  maxBrightness: 150,
   fps: 60,
 });
 

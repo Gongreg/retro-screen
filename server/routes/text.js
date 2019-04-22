@@ -23,8 +23,6 @@ module.exports = function (io, socket) {
       updateState();
       screenController.setScreenState({pixelData, currentLetterCycle});
 
-      io.emit('newState', screenController.getSerializedScreenData());
-
       screenController.setTimeout('textRender', setTimeout(render, screenController.getScreenData().textSpeed));
 
     }

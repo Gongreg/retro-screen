@@ -1,4 +1,5 @@
 const {spawn} = require('child_process');
+
 const cprocess = spawn('/home/pi/projects/cli-visualizer/build/vis');
 
 const io = require('socket.io-client');
@@ -35,5 +36,5 @@ function cleanup() {
   });
 }
 
-process.on('SIGINT', cleanup);
-process.on('SIGTERM', cleanup);
+//process.on('SIGINT', cleanup);
+//process.on('SIGTERM', cleanup);

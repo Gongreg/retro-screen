@@ -80,6 +80,13 @@ export function onNewState(screenData) {
   }
 }
 
+export function scriptError(error) {
+  return {
+    type: actionTypes.SCRIPT_ERROR,
+    error,
+ };
+}
+
 export function onUploadImage({file, name}) {
   ioClient.onUploadImage({file, name});
 
@@ -133,3 +140,12 @@ export function onChangeVisualizerEnabled() {
     type: actionTypes.ON_CHANGE_VISUALIZER_ENABLED
   };
 }
+
+export function onTestCode(code) {
+  ioClient.onTestCode(code);
+
+  return {
+    type: actionTypes.DUMMY
+  };
+}
+

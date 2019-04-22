@@ -11,3 +11,4 @@ export const ON_NEW_STATE = 'onNewState';
 export const ON_RESET = 'onReset';
 export const ON_CHANGE_BRIGHTNESS = 'onChangeBrightness';
 export const ON_CHANGE_VISUALIZER_ENABLED = 'onChangeVisualizerEnabled';
+export const SCRIPT_ERROR = 'scriptError';

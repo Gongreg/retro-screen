@@ -59,7 +59,7 @@ class Menu extends PureComponent {
               <NavItem href="draw"><Link to="/draw">Draw</Link></NavItem>
               <NavItem><Link to="/clock">Clock</Link></NavItem>
               <NavItem><Link to="/images">Images</Link></NavItem>
-              <NavItem><Link to="/scripts">Script runner</Link></NavItem>
+              <NavItem><Link to="/scripts">Scripts</Link></NavItem>
               <NavItem><Link to="/text">Text</Link></NavItem>
             </Nav>
             <Nav pullRight>

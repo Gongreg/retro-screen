@@ -23,6 +23,10 @@ module.exports = {
             plugins: [require('@babel/plugin-proposal-object-rest-spread'), require('@babel/plugin-proposal-class-properties')]
           }
         }
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
     ]
   },

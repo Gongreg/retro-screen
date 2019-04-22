@@ -6,6 +6,7 @@
   "dependencies": {
     "body-parser": "^1.15.0",
     "clone": "^2.0.0",
+    "codemirror": "^5.33.0",
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "get-pixels": "^3.3.0",
@@ -15,6 +16,7 @@
     "ramda": "^0.25.0",
     "react": "^16.2.0",
     "react-bootstrap": "^0.31.5",
+    "react-codemirror2": "^3.0.7",
     "react-color": "^2.0.0",
     "react-dom": "^16.2.0",
     "react-dropzone": "^4.2.3",
@@ -26,7 +28,8 @@
     "sanitize-filename": "^1.6.0",
     "socket.io": "^2.0.4",
     "socket.io-client": "^2.0.4",
-    "spotify-web-api-node": "^2.4.0"
+    "spotify-web-api-node": "^2.4.0",
+    "vm2": "^3.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.34",
@@ -35,6 +38,8 @@
     "@babel/preset-env": "^7.0.0-beta.34",
     "@babel/preset-react": "^7.0.0-beta.34",
     "babel-loader": "^8.0.0-beta.0",
+    "css-loader": "^0.28.7",
+    "style-loader": "^0.19.1",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.7",
     "webpack-sources": "^1.1.0"

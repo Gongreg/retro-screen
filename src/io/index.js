@@ -11,6 +11,7 @@ class ioClient {
     this.socket.on('afterVisualizerEnabled', this.afterVisualizerEnabled);
     this.socket.on('afterReset', this.newState);
     this.socket.on('newState', this.newState);
+    this.socket.on('scriptError', this.scriptError);
   }
 
   onInit = ({screenData}) => {
@@ -45,6 +46,10 @@ class ioClient {
     this.dispatch(actions.onNewState(screenData));
   };
 
+  scriptError = (error) => {
+    this.dispatch(actions.scriptError(error));
+  };
+
   onUploadImage = ({file, name}) => {
     this.socket.emit('imageUpload', {file, name});
   };
@@ -74,8 +79,11 @@ class ioClient {
   };
 
   onChangeTextSpeed = (textSpeed) => {
-    console.log('emit', textSpeed);
     this.socket.emit('textSpeed', textSpeed);
+  };
+
+  onTestCode = (code) => {
+    this.socket.emit('testCode', code);
   }
 }
 

@@ -23,6 +23,8 @@ module.exports = function initRoutes(io) {
 
     require('./routes/shutdown')(io, socket);
 
+    require('./routes/scripts')(io, socket);
+
     socket.on('disconnect', function () {
       console.log('user disconnected');
     });

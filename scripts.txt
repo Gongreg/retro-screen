@@ -1,0 +1,18 @@
+loop!!!
+
+(function tick({pixels, counter, resolution}) {
+
+  for (let i = 0; i < resolution.y; i++) {
+    for (let ii = 0; ii < resolution.x; ii++) {
+		var t = counter / 32 + ii/10 + i/10;
+
+		const red = ((Math.sin(t)+2)*80 | 0) * 0x10000;
+	 	const green = ((Math.sin(t+2)+2)*80 | 0) * 0x100;
+		const blue = ((Math.sin(t+4)+2)*80 | 0);
+	    const color = red + green + blue;
+		pixels[ii][i] = color|0x1000000;
+    }
+  }
+
+  return pixels;
+})

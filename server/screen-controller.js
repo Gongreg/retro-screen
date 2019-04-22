@@ -107,6 +107,13 @@ function addTimeout(name, timeout) {
   sctrl.state.timeouts[name] = timeout;
 }
 
+function getFps() {
+  return {
+    fps: sctrl.state.fps,
+    timeout: sctrl.state.timeout,
+  };
+}
+
 module.exports = {
   init,
   render,
@@ -118,4 +125,5 @@ module.exports = {
   setState,
   setScreenState,
   setTimeout: addTimeout,
+  getFps,
 };

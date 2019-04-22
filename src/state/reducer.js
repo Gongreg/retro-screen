@@ -15,6 +15,7 @@ const initialState = {
     textSpeed: 0,
   },
   loading: true,
+  scriptError: null,
 };
 
 
@@ -93,6 +94,9 @@ export default (state = initialState, action) => {
     }
     case actionTypes.ON_CHANGE_VISUALIZER_ENABLED: {
       return R.assocPath(['screenData', 'visualizerEnabled'], !state.screenData.visualizerEnabled, state);
+    }
+    case actionTypes.SCRIPT_ERROR: {
+      return R.assoc('scriptError', action.error, state);
     }
     default:
       return state;
