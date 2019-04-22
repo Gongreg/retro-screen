@@ -3,3 +3,4 @@ node_modules
 public/js/*
 server/spotify/config.local.js
 server/spotify/auth.local.json
+.idea

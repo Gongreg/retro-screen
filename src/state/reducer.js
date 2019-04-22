@@ -77,23 +77,11 @@ export default (state = initialState, action) => {
 
       return R.assocPath(['screenData', 'brightness'], action.brightness, state);
     }
-    case actionTypes.AFTER_VISUALIZER_ENABLED: {
-      let previousEnabled = state.screenData.visualizerEnabled;
-
-      if (previousEnabled === action.visualizerEnabled) {
-        return;
-      }
-
-      return R.assocPath(['screenData', 'visualizerEnabled'], action.visualizerEnabled, state);
-    }
     case actionTypes.ON_RESET: {
       return R.assocPath(['screenData', 'pixelData'], setAllElementsToZero(state.screenData.resolution.x)(state.screenData.pixelData), state);
     }
     case actionTypes.ON_CHANGE_BRIGHTNESS: {
       return R.assocPath(['screenData', 'brightness'], action.brightness, state);
-    }
-    case actionTypes.ON_CHANGE_VISUALIZER_ENABLED: {
-      return R.assocPath(['screenData', 'visualizerEnabled'], !state.screenData.visualizerEnabled, state);
     }
     case actionTypes.SCRIPT_ERROR: {
       return R.assoc('scriptError', action.error, state);

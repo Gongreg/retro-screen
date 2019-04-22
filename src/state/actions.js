@@ -102,13 +102,6 @@ export function afterBrightness(brightness) {
   };
 }
 
-export function afterVisualizerEnabled(visualizerEnabled) {
-  return {
-    type: actionTypes.AFTER_VISUALIZER_ENABLED,
-    visualizerEnabled,
-  };
-}
-
 export function onShutdown() {
   ioClient.onShutdown();
 
@@ -132,14 +125,6 @@ export function onChangeBrightness(brightness) {
     brightness,
   };
 };
-
-export function onChangeVisualizerEnabled() {
-  ioClient.onChangeVisualizerEnabled();
-
-  return {
-    type: actionTypes.ON_CHANGE_VISUALIZER_ENABLED
-  };
-}
 
 export function onTestCode(code) {
   ioClient.onTestCode(code);

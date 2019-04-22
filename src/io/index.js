@@ -8,7 +8,6 @@ class ioClient {
     this.socket.on('init', this.onInit);
     this.socket.on('afterDraw', this.afterDraw);
     this.socket.on('afterBrightness', this.afterBrightness);
-    this.socket.on('afterVisualizerEnabled', this.afterVisualizerEnabled);
     this.socket.on('afterReset', this.newState);
     this.socket.on('newState', this.newState);
     this.socket.on('scriptError', this.scriptError);
@@ -56,10 +55,6 @@ class ioClient {
 
   afterBrightness = (brightness) => {
     this.dispatch(actions.afterBrightness(brightness));
-  };
-
-  afterVisualizerEnabled = (visualizerEnabled) => {
-    this.dispatch(actions.afterVisualizerEnabled(visualizerEnabled));
   };
 
   onShutdown = () => {

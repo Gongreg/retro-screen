@@ -10,20 +10,6 @@ class Main extends PureComponent {
   componentWillMount() {
     ioClient.initClient(this.props.dispatch);
   }
-
-  onChangeVisualizerEnabled = () => {
-    const screenData = {
-      ...this.state.screenData,
-      visualizerEnabled: !this.state.screenData.visualizerEnabled,
-    };
-
-    this.socket.emit('visualizerEnabled');
-
-    this.setState({
-      screenData,
-    });
-  };
-
   render() {
     return this.props.children;
   }

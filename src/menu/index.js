@@ -18,10 +18,6 @@ class Menu extends PureComponent {
     this.props.dispatch(actions.onChangeBrightness(e.target.value));
   };
 
-  onChangeVisualizerEnabled = () => {
-    this.props.dispatch(actions.onChangeVisualizerEnabled());
-  };
-
   onClickShutdown = () => {
     this.setState({
       showModal: true,
@@ -43,7 +39,7 @@ class Menu extends PureComponent {
   };
 
   render() {
-    const {visualizerEnabled, maxBrightness, brightness} = this.props;
+    const {maxBrightness, brightness} = this.props;
 
     return (
       <div>
@@ -63,18 +59,6 @@ class Menu extends PureComponent {
               <NavItem><Link to="/text">Text</Link></NavItem>
             </Nav>
             <Nav pullRight>
-              <NavItem>
-                <div style={{padding: '15px 0'}}>
-                  <label>
-                    Visualizer
-                    <input
-                      type="checkbox"
-                      checked={visualizerEnabled || false}
-                      onChange={this.onChangeVisualizerEnabled}
-                    />
-                  </label>
-                </div>
-              </NavItem>
               <NavItem>
                 <div style={{padding: '15px 0'}}>
                   <input
@@ -107,7 +91,6 @@ class Menu extends PureComponent {
 }
 
 const mapStateToProps = (state) => ({
-  visualizerEnabled: state.screenData.visualizerEnabled,
   maxBrightness: state.screenData.maxBrightness,
   brightness: state.screenData.brightness,
 });
