@@ -21,6 +21,14 @@ class ioClient {
     this.socket.emit('draw', {coordinates, color});
   };
 
+  setAlarms = (newAlarm) => {
+    this.socket.emit('setAlarms', newAlarm);
+  };
+
+  removeAlarm = (k) => {
+    this.socket.emit('removeAlarm', k);
+  };
+
   afterDraw = ({coordinates, color}) => {
     this.dispatch(actions.afterDraw({coordinates, color}));
   };

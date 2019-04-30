@@ -6,6 +6,7 @@ module.exports = function initRoutes(io) {
 
     socket.emit('init', require('./routes/init')());
 
+    require('./routes/alarms')(io, socket);
     require('./routes/brightness')(io, socket);
 
     require('./routes/draw')(io, socket);

@@ -27,6 +27,7 @@ app.get('/*', function (req, res) {
 const server = http.createServer(app);
 server.listen(1365);
 
+
 const screenController = require('./server/screen-controller');
 screenController.init({
   leds: 256,
@@ -37,6 +38,7 @@ screenController.init({
   defaultBrightness: 100,
   maxBrightness: 150,
   fps: 60,
+  alarms: require('./server/alarms').getAlarms(),
 });
 
 

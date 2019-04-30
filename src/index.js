@@ -7,6 +7,7 @@ import {createStore} from 'redux';
 import Menu from './menu';
 import Main from './main';
 import Index from './splashscreen';
+import Alarm from './alarm';
 import Draw from './draw';
 import Screen from './screen/test-screen';
 import Images from './images';
@@ -32,6 +33,7 @@ const Entry = () => (
             <Route path="/clock" component={Clock}/>
             <Route path="/text" component={Text}/>
             <Route path="/scripts" component={Script}/>
+            <Route path="/alarm" component={Alarm}/>
           </Switch>
         </div>
       </Main>

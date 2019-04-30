@@ -4,7 +4,7 @@ const { serialize, clearTimeouts: clearTimeoutsHelper } = require('./utils');
 
 const sctrl = {};
 
-function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
+function init({ leds, resolution, maxBrightness, defaultBrightness, fps, alarms }) {
 
   const timeout = 1000 / fps;
 
@@ -20,6 +20,7 @@ function init({ leds, resolution, maxBrightness, defaultBrightness, fps }) {
       text: '',
       textSpeed: 100,
       visualizerEnabled: false,
+      alarms,
     },
     rerender: true,
     fps,
