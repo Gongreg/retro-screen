@@ -31,6 +31,11 @@ module.exports = {
   },
 
   runAlarm() {
+    let pixelData = screenController.getScreenData().pixelData;
+    pixelData = pixelData.map(() => 0xFFFCAA);
+    screenController.clearTimeouts();
+    screenController.setScreenState({ pixelData });
+
     console.log('alarm!');
   },
 
