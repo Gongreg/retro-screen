@@ -23,7 +23,7 @@ module.exports = {
   },
 
   getAlarms() {
-    const alarms = require('./store').get('alarms');
+    const alarms = require('./store').get('alarms') || {};
 
     this.loadAlarms(alarms);
 
