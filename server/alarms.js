@@ -37,7 +37,8 @@ module.exports = {
 
     let counter = 0;
     function cycle() {
-      setTimeout(() => {
+      screenController.setTimeout('alarm', setTimeout(() => {
+        screenController.clearTimeouts();
         screenController.setScreenState({ pixelData, brightness: counter });
 
         counter++;
@@ -48,7 +49,7 @@ module.exports = {
 
         cycle();
 
-        }, 100);
+        }, 3000));
 
     }
 
