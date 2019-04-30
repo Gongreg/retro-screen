@@ -34,8 +34,25 @@ module.exports = {
     let pixelData = screenController.getScreenData().pixelData;
     pixelData = pixelData.map(() => 0xFFFCAA);
     screenController.clearTimeouts();
-    screenController.setScreenState({ pixelData });
 
+    let counter = 0;
+    function cycle() {
+      setTimeout(() => {
+        screenController.setScreenState({ pixelData, brightness: counter });
+
+        counter++;
+
+        if (counter >= 200) {
+          return;
+        }
+
+        cycle();
+
+        }, 100);
+
+    }
+
+    cycle();
     console.log('alarm!');
   },
 
