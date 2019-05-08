@@ -1,5 +1,7 @@
+.DS_Store
 node_modules
 .ftpconfig
 server/spotify/config.local.js
 server/spotify/auth.local.json
 .idea
+.history

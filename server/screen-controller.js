@@ -1,5 +1,5 @@
 const ws281x = require('rpi-ws281x-native');
-
+const spotify = require('./spotify/spotify');
 const { serialize, clearTimeouts: clearTimeoutsHelper } = require('./utils');
 
 const sctrl = {};
@@ -95,6 +95,8 @@ function clearTimeouts() {
 function reset({resetBrightness} = {resetBrightness: true}) {
   clearTimeouts(sctrl.state.timeouts);
 
+  spotify.stop();
+  
   setState({
     screenData: Object.assign(
       {}, sctrl.initialState.screenData, { pixelData: new Uint32Array(sctrl.initialState.screenData.leds) },

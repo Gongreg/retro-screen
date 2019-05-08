@@ -1,6 +1,6 @@
 const screenController = require('./screen-controller');
 const schedule = require('node-schedule');
-
+const spotify = require('./spotify/spotify');
 let jobs = [];
 
 module.exports = {
@@ -41,6 +41,8 @@ module.exports = {
         screenController.clearTimeouts();
         screenController.setScreenState({ pixelData, brightness: counter });
 
+        spotify.setVolume(counter);
+
         counter++;
 
         if (counter >= 200) {
@@ -54,6 +56,9 @@ module.exports = {
     }
 
     cycle();
+
+    spotify.playAlarm();
+
     console.log('alarm!');
   },
 

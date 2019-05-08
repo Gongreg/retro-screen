@@ -27,6 +27,8 @@ app.get('/*', function (req, res) {
 const server = http.createServer(app);
 server.listen(1365);
 
+const spotify = require('./server/spotify/spotify');
+spotify.connect();
 
 const screenController = require('./server/screen-controller');
 screenController.init({
@@ -59,3 +61,34 @@ function cleanup() {
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 
+
+
+let pixelData = screenController.getScreenData().pixelData;
+    pixelData = pixelData.map(() => 0xFFFCAA);
+    screenController.clearTimeouts();
+
+    let counter = 0;
+    function cycle() {
+      screenController.setTimeout('alarm', setTimeout(() => {
+        screenController.clearTimeouts();
+        screenController.setScreenState({ pixelData, brightness: counter });
+
+        spotify.setVolume(counter);
+
+        counter++;
+
+        if (counter >= 200) {
+          return;
+        }
+
+        cycle();
+
+        }, 3000));
+
+    }
+
+    cycle();
+
+    spotify.playAlarm();
+
+    console.log('alarm!');

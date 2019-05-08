@@ -1,0 +1,6 @@
+{
+  "one": "two",
+  "alarms": {
+    "Pavadinimas": "35 2 * * *"
+  }
+}
