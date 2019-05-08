@@ -38,7 +38,7 @@ screenController.init({
     y: 16,
   },
   defaultBrightness: 100,
-  maxBrightness: 150,
+  maxBrightness: 255,
   fps: 60,
   alarms: require('./server/alarms').getAlarms(),
 });
